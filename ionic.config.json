@@ -1,0 +1,7 @@
+{
+  "name": "Horde",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
