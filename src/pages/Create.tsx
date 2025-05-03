@@ -10,9 +10,11 @@ import {
   IonItem,
   IonLabel,
   IonAlert,
+  useIonViewDidEnter,
 } from "@ionic/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import { transitionFade } from "../animations/transition";
 
 const Create: React.FC = () => {
   const [title, setTitle] = useState("");
@@ -45,6 +47,14 @@ const Create: React.FC = () => {
     setShowAlert(true);
   };
 
+  const contentRef = useRef<HTMLIonContentElement | null>(null);
+
+  useIonViewDidEnter(() => {
+    if (contentRef.current) {
+      transitionFade(contentRef.current, "in");
+    }
+  });
+
   return (
     <IonPage>
       <IonHeader>
@@ -52,7 +62,7 @@ const Create: React.FC = () => {
           <IonTitle>Create Guide</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
+      <IonContent ref={contentRef} fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">Create a New Guide</IonTitle>
