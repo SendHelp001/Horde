@@ -1,2 +1,19 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+ion-toolbar {
+  --background: var(--ion-background-color);
+  --border-width: 0;
+  --box-shadow: none;
+  --border-color: var(--ion-background-color);
+}
+
+ion-header,
+ion-footer {
+  background: var(--ion-background-color);
+}
+
+.material-symbol {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-size: 20px;
+}

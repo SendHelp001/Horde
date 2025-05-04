@@ -10,12 +10,13 @@ import {
   IonItem,
   IonLabel,
   IonAlert,
+  IonActionSheet,
   useIonViewDidEnter,
 } from "@ionic/react";
 import { useRef, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { transitionFade } from "../animations/transition";
-import Markdown from "marked-react";
+import Markdown from "marked-react"; // Import marked-react for rendering Markdown
 
 const Create: React.FC = () => {
   const [title, setTitle] = useState("");
@@ -24,6 +25,7 @@ const Create: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState("");
 
   const contentRef = useRef<HTMLIonContentElement | null>(null);
+  const [showActionSheet, setShowActionSheet] = useState(false);
 
   useIonViewDidEnter(() => {
     if (contentRef.current) {
@@ -67,15 +69,6 @@ const Create: React.FC = () => {
 
     let formatted = selectedText;
     switch (type) {
-      case "H1":
-        formatted = `# ${selectedText}`;
-        break;
-      case "H2":
-        formatted = `## ${selectedText}`;
-        break;
-      case "H3":
-        formatted = `### ${selectedText}`;
-        break;
       case "Bold":
         formatted = `**${selectedText}**`;
         break;
@@ -87,6 +80,21 @@ const Create: React.FC = () => {
         break;
       case "Code":
         formatted = `\`\`\`\n${selectedText}\n\`\`\``;
+        break;
+      case "UL":
+        formatted = `* ${selectedText}\n`;
+        break;
+      case "OL":
+        formatted = `1. ${selectedText}\n`;
+        break;
+      case "H1":
+        formatted = `# ${selectedText}`;
+        break;
+      case "H2":
+        formatted = `## ${selectedText}`;
+        break;
+      case "H3":
+        formatted = `### ${selectedText}`;
         break;
     }
 
@@ -144,16 +152,16 @@ const Create: React.FC = () => {
             />
           </IonItem>
 
-          {/* Live Markdown Preview with Theming */}
+          {/* Live Markdown Preview */}
           <div className="ion-padding" style={{ marginTop: "20px" }}>
             <h2>Preview:</h2>
             <div
               className="markdown-preview"
               style={{
                 padding: "10px",
-                background: "var(--ion-item-background, #f7f7f7)", // Use background that matches theme
+                background: "var(--ion-item-background, #f7f7f7)",
                 borderRadius: "10px",
-                color: "var(--ion-text-color, #333)", // Text color that matches theme
+                color: "var(--ion-text-color, #333)",
               }}
             >
               <Markdown>{content}</Markdown>
@@ -161,14 +169,14 @@ const Create: React.FC = () => {
           </div>
         </div>
 
-        {/* Fixed Toolbar and Submit Button Container */}
+        {/* Fixed Toolbar with Formatting Buttons */}
         <div
           style={{
             position: "fixed",
             bottom: 0,
             left: 0,
             right: 0,
-            background: "var(--ion-item-background, #fff)", // Theme-aware background color
+            background: "var(--ion-item-background, #fff)",
             boxShadow: "0 -2px 8px rgba(0,0,0,0.15)",
             padding: "12px 16px",
             zIndex: 100,
@@ -184,25 +192,74 @@ const Create: React.FC = () => {
               display: "flex",
               gap: "12px",
               marginBottom: "12px",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
             }}
           >
-            {["H1", "H2", "H3", "Bold", "Italic", "Quote", "Code"].map((type) => (
+            {[
+              { type: "Bold", icon: "format_bold" },
+              { type: "Italic", icon: "format_italic" },
+              { type: "Quote", icon: "format_quote" },
+              { type: "Code", icon: "code" },
+              { type: "UL", icon: "format_list_bulleted" },
+              { type: "OL", icon: "format_list_numbered" },
+            ].map(({ type, icon }) => (
               <IonButton
                 size="small"
                 fill="solid"
                 onClick={() => applyFormatting(type)}
                 key={type}
                 style={{
-                  "--background": "var(--ion-color-primary, #3880ff)", // Primary color
-                  "--color": "var(--ion-color-light, #ffffff)", // Text color for the button
+                  "--background": "var(--ion-color-primary, #3880ff)",
+                  "--color": "var(--ion-color-light, #ffffff)",
                   "--border-radius": "8px",
                   "--padding-start": "12px",
                   "--padding-end": "12px",
                 }}
               >
-                {type}
+                <span className="material-symbol">{icon}</span>
               </IonButton>
             ))}
+
+            <IonButton
+              id="open-action-sheet"
+              size="small"
+              style={{
+                "--background": "var(--ion-color-primary, #3880ff)",
+                "--color": "var(--ion-color-light, #ffffff)",
+                "--border-radius": "8px",
+              }}
+            >
+              Text Type
+            </IonButton>
+
+            {/* Action Sheet for Text Type Selection */}
+            <IonActionSheet
+              trigger="open-action-sheet"
+              header="Select Text Type"
+              buttons={[
+                {
+                  text: "Heading 1",
+                  handler: () => applyFormatting("H1"),
+                },
+                {
+                  text: "Heading 2",
+                  handler: () => applyFormatting("H2"),
+                },
+                {
+                  text: "Heading 3",
+                  handler: () => applyFormatting("H3"),
+                },
+                {
+                  text: "Body",
+                  handler: () => applyFormatting("Body"),
+                },
+                {
+                  text: "Cancel",
+                  role: "cancel",
+                },
+              ]}
+            ></IonActionSheet>
           </div>
 
           {/* Submit Button */}
@@ -210,8 +267,8 @@ const Create: React.FC = () => {
             expand="block"
             onClick={handleSubmit}
             style={{
-              "--background": "var(--ion-color-primary, #3880ff)", // Primary color
-              "--color": "var(--ion-color-light, #ffffff)", // Text color
+              "--background": "var(--ion-color-primary, #3880ff)",
+              "--color": "var(--ion-color-light, #ffffff)",
               "--border-radius": "12px",
               "--padding-start": "16px",
               "--padding-end": "16px",

@@ -13,9 +13,11 @@ import {
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { useHistory } from "react-router-dom";
+import Loader from "../components/Loader"; // Import the Loader component
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<{ id: string; title: string; content: string }[]>([]);
+  const [loading, setLoading] = useState(true); // Track loading state
   const history = useHistory();
 
   useEffect(() => {
@@ -26,6 +28,7 @@ const Home: React.FC = () => {
       } else {
         console.error("Error fetching posts:", error);
       }
+      setLoading(false); // Set loading to false once data is fetched
     };
 
     fetchPosts();
@@ -44,16 +47,29 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-        {posts.map((post: any) => (
-          <IonCard key={post.id} button onClick={() => handlePostClick(post.id)}>
-            <IonCardHeader>
-              <IonCardTitle>{post.title}</IonCardTitle>
-            </IonCardHeader>
-            <IonCardContent>
-              <p>{post.content.substring(0, 100)}...</p> {/* Show content preview */}
-            </IonCardContent>
-          </IonCard>
-        ))}
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
+            <Loader /> {/* Show loader while data is loading */}
+          </div>
+        ) : (
+          posts.map((post: any) => (
+            <IonCard key={post.id} button onClick={() => handlePostClick(post.id)}>
+              <IonCardHeader>
+                <IonCardTitle>{post.title}</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p>{post.content.substring(0, 100)}...</p> {/* Show content preview */}
+              </IonCardContent>
+            </IonCard>
+          ))
+        )}
       </IonContent>
     </IonPage>
   );
