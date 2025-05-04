@@ -1,7 +1,7 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
+  IonHeader,
   IonTitle,
   IonToolbar,
   IonButton,
@@ -15,6 +15,7 @@ import {
 import { useRef, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { transitionFade } from "../animations/transition";
+import Markdown from "marked-react";
 
 const Create: React.FC = () => {
   const [title, setTitle] = useState("");
@@ -142,6 +143,22 @@ const Create: React.FC = () => {
               }}
             />
           </IonItem>
+
+          {/* Live Markdown Preview with Theming */}
+          <div className="ion-padding" style={{ marginTop: "20px" }}>
+            <h2>Preview:</h2>
+            <div
+              className="markdown-preview"
+              style={{
+                padding: "10px",
+                background: "var(--ion-item-background, #f7f7f7)", // Use background that matches theme
+                borderRadius: "10px",
+                color: "var(--ion-text-color, #333)", // Text color that matches theme
+              }}
+            >
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
         </div>
 
         {/* Fixed Toolbar and Submit Button Container */}

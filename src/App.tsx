@@ -23,6 +23,7 @@ import {
 import Home from "./pages/Home";
 import Create from "./pages/Create";
 import Favorites from "./pages/Favorites";
+import PostDetail from "./pages/PostDetail"; // Import the Post Detail page
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -69,6 +70,9 @@ const App: React.FC = () => (
           </Route>
           <Route path="/Favorites">
             <Favorites />
+          </Route>
+          <Route path="/post/:postId">
+            <PostDetail />
           </Route>
           <Route exact path="/">
             <Redirect to="/Home" />

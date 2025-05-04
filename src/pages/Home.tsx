@@ -4,35 +4,56 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonViewDidEnter,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonButton,
 } from "@ionic/react";
-import ExploreContainer from "../components/ExploreContainer";
-import "./Home.css";
-import { useRef } from "react";
-import { transitionFade } from "../animations/transition";
+import { useEffect, useState } from "react";
+import { supabase } from "../utils/supabaseClient";
+import { useHistory } from "react-router-dom";
 
 const Home: React.FC = () => {
-  const contentRef = useRef<HTMLIonContentElement | null>(null);
+  const [posts, setPosts] = useState<{ id: string; title: string; content: string }[]>([]);
+  const history = useHistory();
 
-  useIonViewDidEnter(() => {
-    if (contentRef.current) {
-      transitionFade(contentRef.current, "in");
-    }
-  });
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const { data, error } = await supabase.from("guides").select("*");
+      if (data) {
+        setPosts(data);
+      } else {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handlePostClick = (postId: string) => {
+    history.push(`/post/${postId}`); // Navigate to the post detail page
+  };
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Feed</IonTitle>
+          <IonTitle>Home</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent ref={contentRef} fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Feed</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer name="This is the feed" />
+
+      <IonContent fullscreen className="ion-padding">
+        {posts.map((post: any) => (
+          <IonCard key={post.id} button onClick={() => handlePostClick(post.id)}>
+            <IonCardHeader>
+              <IonCardTitle>{post.title}</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <p>{post.content.substring(0, 100)}...</p> {/* Show content preview */}
+            </IonCardContent>
+          </IonCard>
+        ))}
       </IonContent>
     </IonPage>
   );
