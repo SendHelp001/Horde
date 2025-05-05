@@ -1,0 +1,47 @@
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  padding: 8px 0;
+}
+
+.avatar-button {
+  position: absolute;
+  left: 16px;
+  padding: 0;
+  margin: 0;
+}
+
+.custom-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.home-icon-png {
+  width: 28px;
+  height: 28px;
+}
+
+/* Segment Styling */
+.sleek-segment {
+  --background: transparent;
+  --indicator-color: var(--ion-color-primary);
+  --color: var(--ion-color-dark);
+  --color-checked: var(--ion-color-primary);
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.sleek-segment ion-segment-button {
+  --background: transparent;
+  --background-checked: transparent;
+  --border-width: 0;
+  --indicator-height: 2px;
+  --indicator-padding-start: 30%;
+  --indicator-padding-end: 30%;
+}
+
+.no-pulse::part(native) {
+  --ripple-effect: none;
+}

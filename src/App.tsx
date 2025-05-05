@@ -13,15 +13,16 @@ import { IonReactRouter } from "@ionic/react-router";
 import {
   homeOutline,
   addOutline,
-  bookmarkOutline,
+  searchOutline,
   personOutline,
   notificationsOutline,
-  searchOutline,
 } from "ionicons/icons";
 import Home from "./pages/Home";
 import Create from "./pages/Create";
-import Favorites from "./pages/Favorites";
+import Explore from "./pages/Explore"; // New page for Explore
 import PostDetail from "./pages/PostDetail";
+import Notifications from "./pages/Notifications"; // New page for Notifications
+import Profile from "./pages/Profile"; // New page for Profile
 
 /* Core & optional CSS */
 import "@ionic/react/css/core.css";
@@ -54,8 +55,14 @@ const App: React.FC = () => (
           <Route exact path="/create">
             <Create />
           </Route>
-          <Route exact path="/favorites">
-            <Favorites />
+          <Route exact path="/explore">
+            <Explore /> {/* Explore page */}
+          </Route>
+          <Route exact path="/notifications">
+            <Notifications /> {/* Notifications page */}
+          </Route>
+          <Route exact path="/profile">
+            <Profile /> {/* Profile page */}
           </Route>
           <Route path="/post/:postId">
             <PostDetail />
@@ -71,7 +78,9 @@ const App: React.FC = () => (
             <IonLabel>Home</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="explore" href="/favorites">
+          <IonTabButton tab="explore" href="/explore">
+            {" "}
+            {/* Updated route for Explore */}
             <IonIcon icon={searchOutline} />
             <IonLabel>Explore</IonLabel>
           </IonTabButton>
@@ -81,12 +90,16 @@ const App: React.FC = () => (
             <IonLabel>Create</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="notifications" href="/favorites">
+          <IonTabButton tab="notifications" href="/notifications">
+            {" "}
+            {/* Updated route for Notifications */}
             <IonIcon icon={notificationsOutline} />
             <IonLabel>Notifications</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="profile" href="/favorites">
+          <IonTabButton tab="profile" href="/profile">
+            {" "}
+            {/* Updated route for Profile */}
             <IonIcon icon={personOutline} />
             <IonLabel>Profile</IonLabel>
           </IonTabButton>
