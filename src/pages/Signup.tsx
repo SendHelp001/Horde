@@ -41,7 +41,7 @@ const Signup: React.FC = () => {
 
     if (user) {
       showToast("Sign up successful! Please log in.", "primary");
-      navigation.push("/login", "forward", "replace"); // Redirect to login page after signup
+      navigation.push("/horde/", "forward", "replace"); // Redirect to login page after signup
     }
   };
 
@@ -87,7 +87,7 @@ const Signup: React.FC = () => {
             <span>Already have an account?</span>
           </div>
 
-          <IonButton expand="block" routerLink="/login" fill="clear" style={{ marginTop: 8 }}>
+          <IonButton expand="block" routerLink="/horde/" fill="clear" style={{ marginTop: 8 }}>
             Log In
           </IonButton>
         </div>

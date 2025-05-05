@@ -13,10 +13,12 @@ import {
 } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import { useHistory } from "react-router";
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const history = useHistory();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -77,6 +79,7 @@ const Profile: React.FC = () => {
       console.error("Sign-out error:", error.message);
     } else {
       setUser(null);
+      history.replace("/horde"); // Redirect to the login page after sign out
     }
   };
 
