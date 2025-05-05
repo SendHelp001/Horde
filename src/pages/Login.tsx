@@ -1,83 +1,153 @@
-import { useEffect, useState } from "react";
+import {
+  IonButton,
+  IonContent,
+  IonInput,
+  IonLabel,
+  IonPage,
+  IonIcon,
+  useIonRouter,
+  useIonToast,
+  IonItem,
+} from "@ionic/react";
+import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabaseClient";
+import "./Login.css";
+import { mailOutline, lockClosedOutline, eyeOutline, logoGoogle } from "ionicons/icons";
+import { Redirect } from "react-router";
 
 const Login: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [session, setSession] = useState<any>(null); // Default to null
+  const [present] = useIonToast();
+  const navigation = useIonRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+  const showToast = (message: string, color: "primary" | "danger") => {
+    present({
+      message,
+      duration: 2000,
+      color,
+      position: "top",
+    });
+  };
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      showToast(error.message, "danger");
+      return;
+    }
+
+    showToast("Login successful! Redirecting...", "primary");
+    navigation.push("/app/home", "forward", "replace");
+  };
+
+  const handleOAuthLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
     });
 
     if (error) {
-      console.error("Error during login:", error.message);
-      setLoading(false);
+      showToast(error.message, "danger");
+      return;
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
     }
   };
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setSession(session);
+    const handleOAuthCallback = async () => {
+      const { data: sessionData, error } = await supabase.auth.getSession();
+
+      if (error) {
+        showToast(error.message, "danger");
+        return;
+      }
+
+      if (sessionData?.session) {
+        showToast("Login successful! Redirecting...", "primary");
+        navigation.push("/app/home", "forward", "replace");
+      }
     };
 
-    fetchSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, currentSession) => {
-      setSession(currentSession);
-      if (currentSession) {
-        const { user } = currentSession;
-        const createUser = async () => {
-          const { data: existingUser, error } = await supabase
-            .from("users")
-            .select("id")
-            .eq("id", user?.id)
-            .single();
-
-          if (error) {
-            console.error("Error checking user:", error.message);
-            return;
-          }
-
-          if (!existingUser) {
-            const { error: insertError } = await supabase.from("users").insert([
-              {
-                id: user?.id,
-                email: user?.email,
-                full_name: user?.user_metadata?.full_name || "",
-                avatar_url: user?.user_metadata?.avatar_url || "",
-              },
-            ]);
-
-            if (insertError) {
-              console.error("Error inserting user:", insertError.message);
-            }
-          }
-        };
-
-        createUser();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (
+      window.location.search.includes("access_token") ||
+      window.location.hash.includes("access_token")
+    ) {
+      handleOAuthCallback();
+    }
+  }, [navigation]);
 
   return (
-    <div>
-      {session ? (
-        <p>You are logged in! User ID: {session.user?.id}</p>
-      ) : (
-        <button onClick={handleGoogleLogin} disabled={loading}>
-          {loading ? "Logging in..." : "Login with Google"}
-        </button>
-      )}
-    </div>
+    <IonPage>
+      <IonContent className="ion-padding" fullscreen>
+        <div className="login-container">
+          {/* Logo */}
+          <div className="logo-container">
+            <img src="/public/homeIcon.png" alt="Logo" className="logo" />
+          </div>
+
+          <h1 className="welcome-text">Horde</h1>
+
+          <IonItem lines="none" className="input-item" style={{ marginBottom: "10px" }}>
+            <IonInput
+              labelPlacement="floating"
+              label="Email Address"
+              type="email"
+              value={email}
+              onIonChange={(e) => setEmail(e.detail.value!)}
+              placeholder="your@email.com"
+              fill="solid"
+              inputMode="email"
+            ></IonInput>
+          </IonItem>
+
+          <IonItem lines="none" className="input-item" style={{ marginBottom: "10px" }}>
+            <IonInput
+              labelPlacement="floating"
+              label="Password"
+              type="password"
+              value={password}
+              onIonChange={(e) => setPassword(e.detail.value!)}
+              placeholder="********"
+              fill="solid"
+              inputMode="text"
+            ></IonInput>
+          </IonItem>
+
+          {/* Login Button */}
+          <IonButton expand="block" className="login-button" onClick={handleLogin}>
+            Login
+          </IonButton>
+
+          {/* OAuth Login Button */}
+          <IonButton expand="block" className="oauth-button" onClick={handleOAuthLogin}>
+            <IonIcon icon={logoGoogle} slot="start"></IonIcon>
+            Continue with Google
+          </IonButton>
+
+          {/* Footer */}
+          <div className="footer">
+            <IonButton
+              fill="clear"
+              color="light"
+              className="footer-link"
+              onClick={() => navigation.push("/horde/signup")}
+            >
+              Sign up
+            </IonButton>
+            <IonButton fill="clear" color="light" className="footer-link">
+              Forgot Password?
+            </IonButton>
+          </div>
+        </div>
+      </IonContent>
+    </IonPage>
   );
 };
 

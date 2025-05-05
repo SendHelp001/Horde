@@ -1,0 +1,93 @@
+:root {
+  --primary-color: #ffffff; /* White accent */
+  --secondary-color: #ffffff; /* White accent */
+  --text-color-primary: #ffffff;
+  --text-color-secondary: #ffffff;
+  --background-color: #000000; /* True Black background */
+  --surface-color: #1a1a1a; /* Darker surface for elements */
+  --input-background: #333333;
+  --input-border: transparent;
+  --button-primary-background: #ffffff;
+  --button-primary-text: #000000;
+  --button-secondary-background: transparent;
+  --button-secondary-text: #ffffff;
+}
+
+ion-content {
+  --background: var(--background-color);
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 30px;
+  --padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+}
+
+.welcome-text {
+  color: var(--text-color-primary);
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+ion-label {
+  color: var(--text-color-secondary);
+}
+
+.login-button {
+  --background: var(--button-primary-background);
+  --color: var(--button-primary-text);
+  border-radius: 10px;
+  height: 48px;
+  --padding-start: 1.5rem;
+  --padding-end: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.oauth-button {
+  --background: var(--surface-color);
+  --color: var(--text-color-primary);
+  border-radius: 10px;
+  height: 48px;
+  --padding-start: 1.5rem;
+  --padding-end: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.oauth-button ion-icon {
+  margin-right: 0.5rem;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+}
+
+.footer-link {
+  --color: var(--secondary-color);
+}
