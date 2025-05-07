@@ -13,7 +13,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabaseClient";
 import "./Login.css";
 import { mailOutline, lockClosedOutline, eyeOutline, logoGoogle } from "ionicons/icons";
-import { Redirect } from "react-router";
 
 const Login: React.FC = () => {
   const [present] = useIonToast();
@@ -42,7 +41,7 @@ const Login: React.FC = () => {
     }
 
     showToast("Login successful! Redirecting...", "primary");
-    navigation.push("/app/home", "forward", "replace");
+    navigation.push("/horde/app", "forward", "replace"); // Redirect to the Menu component
   };
 
   const handleOAuthLogin = async () => {
@@ -71,7 +70,7 @@ const Login: React.FC = () => {
 
       if (sessionData?.session) {
         showToast("Login successful! Redirecting...", "primary");
-        navigation.push("/app/home", "forward", "replace");
+        navigation.push("/horde/app", "forward", "replace"); // Redirect to the Menu component
       }
     };
 
@@ -87,7 +86,6 @@ const Login: React.FC = () => {
     <IonPage>
       <IonContent className="ion-padding" fullscreen>
         <div className="login-container">
-          {/* Logo */}
           <div className="logo-container">
             <img src="/public/homeIcon.png" alt="Logo" className="logo" />
           </div>

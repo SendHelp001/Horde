@@ -3,64 +3,70 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonItem,
-  IonMenu,
-  IonMenuToggle,
-  IonPage,
+  IonLabel,
   IonRouterOutlet,
-  IonSplitPane,
-  IonTitle,
-  IonToolbar,
+  IonTabBar,
+  IonTabButton,
+  IonIcon,
+  IonLabel,
 } from "@ionic/react";
-import { homeOutline, rocketOutline, settingsOutline } from "ionicons/icons";
-import { Redirect, Route } from "react-router";
-import Favorites from "./Favorites.";
-import Home from "./Home";
-import Profile from "./Profile";
+import { Redirect, Route } from "react-router-dom";
+import {
+  homeOutline,
+  addOutline,
+  searchOutline,
+  personOutline,
+  notificationsOutline,
+} from "ionicons/icons";
+import Home from "../pages/Home";
+import Create from "../pages/Create";
+import Explore from "../pages/Explore"; 
+import PostDetail from "../pages/PostDetail";
+import Notifications from "../pages/Notifications"; 
+import Profile from "../pages/Profile"; 
 
 const Menu: React.FC = () => {
-  const path = [
-    { name: "Home", url: "/horde/app/home", icon: homeOutline },
-    { name: "About", url: "/horde/app/favorites", icon: rocketOutline },
-    { name: "Profile", url: "/horde/app/profile", icon: settingsOutline },
-  ];
-
   return (
-    <IonPage>
-      <IonSplitPane contentId="main">
-        <IonMenu contentId="main">
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Menu</IonTitle>
-            </IonToolbar>
-          </IonHeader>
+    <IonTabs>
+      <IonRouterOutlet id="main">
+        <Route exact path="/horde/app/home" component={Home} />
+        <Route exact path="/horde/app/explore" component={Explore} />
+        <Route exact path="/horde/app/create" component={Create} />
+        <Route exact path="/horde/app/notifications" component={Notifications} />
+        <Route exact path="/horde/app/profile" component={Profile} />
+        <Route path="/horde/app/post/:postId" component={PostDetail} />
+        <Route exact path="/horde/app">
+          <Redirect to="/horde/app/home" />
+        </Route>
+      </IonRouterOutlet>
 
-          <IonContent fullscreen>
-            {path.map((item, index) => (
-              <IonMenuToggle key={index}>
-                <IonItem routerLink={item.url} routerDirection="forward">
-                  <IonIcon icon={item.icon} slot="start"></IonIcon>
-                  {item.name}
-                </IonItem>
-              </IonMenuToggle>
-            ))}
+      <IonTabBar slot="bottom">
+        <IonTabButton tab="home" href="/horde/app/home">
+          <IonIcon icon={homeOutline} />
+          <IonLabel>Home</IonLabel>
+        </IonTabButton>
 
-            <IonButton routerLink="/horde" routerDirection="back" expand="full">
-              <IonIcon icon="logOutline" slot="start"></IonIcon>
-              Logout
-            </IonButton>
-          </IonContent>
-        </IonMenu>
-        <IonRouterOutlet id="main">
-          <Route exact path="/horde/app/home" component={Home} />
-          <Route exact path="/horde/app/about" component={Favorites} />
-          <Route exact path="/horde/app/profile" component={Profile} />
-          <Route exact path="/horde/app">
-            <Redirect to="/horde/app/home" />
-          </Route>
-        </IonRouterOutlet>
-      </IonSplitPane>
-    </IonPage>
+        <IonTabButton tab="explore" href="/horde/app/explore">
+          <IonIcon icon={searchOutline} />
+          <IonLabel>Explore</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="create" href="/horde/app/create">
+          <IonIcon icon={addOutline} />
+          <IonLabel>Create</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="notifications" href="/horde/app/notifications">
+          <IonIcon icon={notificationsOutline} />
+          <IonLabel>Notifications</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="profile" href="/horde/app/profile">
+          <IonIcon icon={personOutline} />
+          <IonLabel>Profile</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
   );
 };
 

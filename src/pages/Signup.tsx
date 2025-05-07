@@ -45,25 +45,8 @@ const Signup: React.FC = () => {
     }
 
     if (user) {
-      showToast("Sign up successful!", "primary");
-      setTimeout(() => {
-        navigation.push("/horde/login", "forward", "replace");
-      }, 800);
-    }
-  };
-
-  const handleOAuthSignup = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-
-    if (error) {
-      showToast(error.message, "danger");
-      return;
-    }
-
-    if (data?.url) {
-      window.location.href = data.url;
+      showToast("Sign up successful! Please log in.", "primary");
+      navigation.push("/horde/", "forward", "replace"); // Redirect to login page after signup
     }
   };
 
@@ -172,20 +155,12 @@ const Signup: React.FC = () => {
             Create Account
           </IonButton>
 
-          <IonButton
-            expand="block"
-            onClick={handleOAuthSignup}
-            style={{
-              "--background": "#fff",
-              "--color": "var(--ion-color-dark)",
-              border: "1px solid var(--ion-color-medium-tint)",
-              height: "48px",
-              "font-weight": "500",
-              "margin-top": "10px",
-            }}
-          >
-            <IonIcon icon={logoGoogle} slot="start" style={{ marginRight: "10px" }}></IonIcon>
-            Continue with Google
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <span>Already have an account?</span>
+          </div>
+
+          <IonButton expand="block" routerLink="/login" fill="clear" style={{ marginTop: 8 }}>
+            Log In
           </IonButton>
 
           <div style={{ marginTop: "30px", textAlign: "center" }}>
