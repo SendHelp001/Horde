@@ -10,7 +10,8 @@ export default defineConfig({
     react(),
     legacy()
   ],
-  test: {
+  base: '/horde',
+    test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',

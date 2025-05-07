@@ -98,7 +98,7 @@ const PostDetail: React.FC = () => {
           <div
             style={{
               fontSize: "1rem",
-              lineHeight: "0",
+              lineHeight: "1.4",
               color: "var(--ion-text-color, #111)",
             }}
             className="markdown-body"

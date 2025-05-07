@@ -18,7 +18,6 @@ import {
   notificationsOutline,
 } from "ionicons/icons";
 
-
 /* Core & optional CSS */
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";

@@ -7,7 +7,6 @@ import {
   useIonViewDidEnter,
 } from "@ionic/react";
 import ExploreContainer from "../../components/ExploreContainer";
-import "./Explore.css";
 import { useRef } from "react";
 import { transitionFade } from "../../animations/transition";
 
