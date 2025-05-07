@@ -20,18 +20,13 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <AuthProvider>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route exact path="/horde" component={Login} />
-          <Route path="/horde/signup" component={Signup} />
-          <Route path="/horde/app" component={Menu} />
-          <Route exact path="/">
-            <Redirect to="/horde" />
-          </Route>
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </AuthProvider>
+    <IonReactRouter>
+      <IonRouterOutlet>
+        <Route exact path="/horde" component={Login} />
+        <Route path="/horde/app" component={Menu} />
+        <Route path="/horde/signup" component={Signup} />
+      </IonRouterOutlet>
+    </IonReactRouter>
   </IonApp>
 );
 

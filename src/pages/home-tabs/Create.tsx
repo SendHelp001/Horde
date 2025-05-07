@@ -14,8 +14,8 @@ import {
   useIonViewDidEnter,
 } from "@ionic/react";
 import { useRef, useState } from "react";
-import { supabase } from "../utils/supabaseClient";
-import { transitionFade } from "../animations/transition";
+import { supabase } from "../../utils/supabaseClient";
+import { transitionFade } from "../../animations/transition";
 import Markdown from "marked-react"; // Import marked-react for rendering Markdown
 
 const Create: React.FC = () => {

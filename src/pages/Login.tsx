@@ -125,12 +125,6 @@ const Login: React.FC = () => {
             Login
           </IonButton>
 
-          {/* OAuth Login Button */}
-          <IonButton expand="block" className="oauth-button" onClick={handleOAuthLogin}>
-            <IonIcon icon={logoGoogle} slot="start"></IonIcon>
-            Continue with Google
-          </IonButton>
-
           {/* Footer */}
           <div className="footer">
             <IonButton

@@ -6,10 +6,10 @@ import {
   IonToolbar,
   useIonViewDidEnter,
 } from "@ionic/react";
-import ExploreContainer from "../components/ExploreContainer";
+import ExploreContainer from "../../components/ExploreContainer";
 import "./Explore.css";
 import { useRef } from "react";
-import { transitionFade } from "../animations/transition";
+import { transitionFade } from "../../animations/transition";
 
 const Explore: React.FC = () => {
   const contentRef = useRef<HTMLIonContentElement | null>(null);
@@ -33,7 +33,7 @@ const Explore: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <ExploreContainer name="Tab 3 page" />
-      </IonContent>
+      </IonContent>{" "}
     </IonPage>
   );
 };

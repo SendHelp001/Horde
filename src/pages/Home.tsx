@@ -1,106 +1,61 @@
+import { IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel } from "@ionic/react";
+import { Redirect, Route } from "react-router-dom";
 import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButton,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonAvatar,
-} from "@ionic/react";
-import { useEffect, useState } from "react";
-import { supabase } from "../utils/supabaseClient";
-import { useHistory } from "react-router-dom";
-import Loader from "../components/Loader";
-import FeedCard from "../components/FeedCard"; // Import the new component
-import "./Home.css";
+  homeOutline,
+  addOutline,
+  searchOutline,
+  personOutline,
+  notificationsOutline,
+} from "ionicons/icons";
+import Feed from "../pages/Home";
+import Create from "../pages/home-tabs/Create";
+import Explore from "../pages/home-tabs/Explore";
+import PostDetail from "../pages/home-tabs/PostDetail";
+import Notifications from "../pages/home-tabs/Notifications";
+import Profile from "../pages/Profile";
 
 const Home: React.FC = () => {
-  const [posts, setPosts] = useState<{ id: string; title: string; content: string }[]>([]);
-  const [loading, setLoading] = useState(true);
-  const history = useHistory();
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const { data, error } = await supabase.from("guides").select("*");
-      if (data) {
-        setPosts(data);
-      } else {
-        console.error("Error fetching posts:", error);
-      }
-      setLoading(false);
-    };
-
-    fetchPosts();
-  }, []);
-
-  const handlePostClick = (postId: string) => {
-    history.push(`/post/${postId}`);
-  };
-
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <div className="toolbar-container">
-            <IonButton
-              fill="clear"
-              onClick={() => history.push("/profile")}
-              className="avatar-button"
-            >
-              <IonAvatar slot="icon-only" className="custom-avatar">
-                <img
-                  alt="Silhouette of a person's head"
-                  src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                />
-              </IonAvatar>
-            </IonButton>
-            <img src="/homeIcon.png" alt="Home Icon" className="home-icon-png" />
-          </div>
-        </IonToolbar>
+    <IonTabs>
+      <IonRouterOutlet id="main">
+        <Route exact path="/horde/app/home" component={Home} />
+        <Route exact path="/horde/app/explore" component={Explore} />
+        <Route exact path="/horde/app/create" component={Create} />
+        <Route exact path="/horde/app/notifications" component={Notifications} />
+        <Route exact path="/horde/app/profile" component={Profile} />
+        <Route path="/horde/app/post/:postId" component={PostDetail} />
+        <Route exact path="/horde/app">
+          <Redirect to="/horde/app/home" />
+        </Route>
+      </IonRouterOutlet>
 
-        <IonToolbar>
-          <IonSegment value="all" className="sleek-segment">
-            <IonSegmentButton value="all" className="no-pulse">
-              <IonLabel>For you</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="following" className="no-pulse">
-              <IonLabel>Following</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
-        </IonToolbar>
-      </IonHeader>
+      <IonTabBar slot="bottom">
+        <IonTabButton tab="home" href="/horde/app/home">
+          <IonIcon icon={homeOutline} />
+          <IonLabel>Home</IonLabel>
+        </IonTabButton>
 
-      <IonContent fullscreen className="ion-padding">
-        {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-            }}
-          >
-            <Loader />
-          </div>
-        ) : (
-          posts.map((post) => (
-            <FeedCard
-              key={post.id}
-              id={post.id}
-              title={post.title}
-              content={post.content}
-              onClick={handlePostClick}
-              username="John Doe"
-              timestamp="2h ago"
-              avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg"
-            />
-          ))
-        )}
-      </IonContent>
-    </IonPage>
+        <IonTabButton tab="explore" href="/horde/app/explore">
+          <IonIcon icon={searchOutline} />
+          <IonLabel>Explore</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="create" href="/horde/app/create">
+          <IonIcon icon={addOutline} />
+          <IonLabel>Create</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="notifications" href="/horde/app/notifications">
+          <IonIcon icon={notificationsOutline} />
+          <IonLabel>Notifications</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="profile" href="/horde/app/profile">
+          <IonIcon icon={personOutline} />
+          <IonLabel>Profile</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
   );
 };
 

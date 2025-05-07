@@ -10,9 +10,9 @@ import {
 } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import Markdown from "marked-react";
-import Loader from "../components/Loader";
+import Loader from "../../components/Loader";
 
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
