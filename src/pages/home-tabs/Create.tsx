@@ -10,22 +10,51 @@ import {
   IonItem,
   IonLabel,
   IonAlert,
-  IonActionSheet,
   useIonViewDidEnter,
+  IonIcon,
+  IonButtons,
+  IonSelect,
+  IonSelectOption,
+  IonActionSheet,
 } from "@ionic/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import { transitionFade } from "../../animations/transition";
-import Markdown from "marked-react"; // Import marked-react for rendering Markdown
+import Markdown from "marked-react";
+import { imageOutline } from "ionicons/icons";
+
+// If you installed the package, you can keep this import
+// import 'material-symbols/css/outlined.css';
+
+const MAX_FILE_SIZE_MB = 25;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const Create: React.FC = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImageName, setSelectedImageName] = useState<string | null>(null);
   const contentRef = useRef<HTMLIonContentElement | null>(null);
+  const [boards, setBoards] = useState<any[]>([]);
+  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
+
+  useEffect(() => {
+    const fetchBoards = async () => {
+      const { data, error } = await supabase.from("boards").select("*");
+      if (error) {
+        console.error("Error fetching boards:", error);
+        setAlertMessage("Failed to load boards.");
+        setShowAlert(true);
+      } else if (data) {
+        setBoards(data);
+      }
+    };
+
+    fetchBoards();
+  }, []);
 
   useIonViewDidEnter(() => {
     if (contentRef.current) {
@@ -33,27 +62,104 @@ const Create: React.FC = () => {
     }
   });
 
+  const handleBoardChange = (event: any) => {
+    setSelectedBoardId(parseInt(event.detail.value, 10));
+  };
+
+  const handleImageInputChange = (event: any) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        setAlertMessage(`Image size exceeds the limit of ${MAX_FILE_SIZE_MB}MB.`);
+        setShowAlert(true);
+        event.target.value = "";
+        setSelectedImage(null);
+        setSelectedImageName(null);
+        return;
+      }
+      if (file.type.startsWith("image/")) {
+        setSelectedImage(file);
+        setSelectedImageName(file.name);
+      } else {
+        setAlertMessage("Please select an image file.");
+        setShowAlert(true);
+        event.target.value = "";
+        setSelectedImage(null);
+        setSelectedImageName(null);
+      }
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim()) {
-      setAlertMessage("Please fill in all fields");
+    if (!title.trim() || !content.trim() || !selectedBoardId) {
+      setAlertMessage("Please fill in all fields and select a board.");
       setShowAlert(true);
       return;
     }
 
-    const { data, error } = await supabase.from("guides").insert([
-      {
-        title: title.trim(),
-        content: content.trim(),
-        votes: 0,
-      },
-    ]);
+    let imageUrl: string | null = null;
+    let imageName: string | null = null;
+    let imageType: string | null = null;
+
+    if (selectedImage) {
+      if (selectedImage.size > MAX_FILE_SIZE_BYTES) {
+        setAlertMessage(`Image size exceeds the limit of ${MAX_FILE_SIZE_MB}MB.`);
+        setShowAlert(true);
+        return;
+      }
+      try {
+        const filePath = `boards/${selectedBoardId}/${Date.now()}-${selectedImage.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("post-images") // Replace with your actual bucket name
+          .upload(filePath, selectedImage);
+
+        if (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          setAlertMessage("Failed to upload image");
+          setShowAlert(true);
+          return;
+        }
+
+        imageUrl =
+          supabase.storage.from("post-images").getPublicUrl(filePath).data?.publicUrl || null;
+        imageName = selectedImage.name;
+        imageType = selectedImage.type;
+      } catch (error: any) {
+        console.error("Error during image upload:", error);
+        setAlertMessage("Error during image upload");
+        setShowAlert(true);
+        return;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("guides")
+      .insert([
+        {
+          board_id: selectedBoardId,
+          title: title.trim(),
+          content: content.trim(),
+          image_url: imageUrl,
+          image_name: imageName,
+          image_type: imageType,
+          votes: 0,
+        },
+      ])
+      .select("id")
+      .single();
 
     if (error) {
-      setAlertMessage("Failed to create guide");
+      console.error("Error creating guide:", error);
+      setAlertMessage("Failed to create guide.");
+      setShowAlert(true);
     } else {
       setAlertMessage("Guide created successfully!");
       setTitle("");
       setContent("");
+      setSelectedImage(null);
+      setSelectedImageName(null);
+      setSelectedBoardId(null);
+      // Optionally navigate to the new thread using data.id
     }
     setShowAlert(true);
   };
@@ -101,7 +207,6 @@ const Create: React.FC = () => {
     const updatedContent = content.substring(0, start) + formatted + content.substring(end);
     setContent(updatedContent);
 
-    // Move caret after inserted text
     setTimeout(() => {
       el.focus();
       el.selectionStart = el.selectionEnd = start + formatted.length;
@@ -113,11 +218,35 @@ const Create: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Create Post</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => document.getElementById("image-upload")?.click()}>
+              <IonIcon icon={imageOutline} slot="start" />
+              Attach Image
+            </IonButton>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              id="image-upload"
+              onChange={handleImageInputChange}
+            />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 
       <IonContent ref={contentRef} fullscreen>
         <div className="ion-padding" style={{ paddingBottom: "140px" }}>
+          <IonItem>
+            <IonLabel>Board</IonLabel>
+            <IonSelect value={selectedBoardId} onIonChange={handleBoardChange}>
+              {boards.map((board) => (
+                <IonSelectOption key={board.id} value={board.id}>
+                  {board.name} ({board.slug})
+                </IonSelectOption>
+              ))}
+            </IonSelect>
+          </IonItem>
+
           <IonItem lines="none" style={{ "--background": "transparent" }}>
             <IonLabel position="stacked" className="text-xs text-gray-500">
               Post Title
@@ -151,6 +280,12 @@ const Create: React.FC = () => {
               }}
             />
           </IonItem>
+
+          {selectedImageName && (
+            <IonItem lines="none" className="mt-2" style={{ "--background": "transparent" }}>
+              <IonLabel>Attached Image: {selectedImageName}</IonLabel>
+            </IonItem>
+          )}
 
           {/* Live Markdown Preview */}
           <div className="ion-padding" style={{ marginTop: "20px" }}>
@@ -215,9 +350,24 @@ const Create: React.FC = () => {
                   "--border-radius": "8px",
                   "--padding-start": "12px",
                   "--padding-end": "12px",
+                  fontFamily: "Material Symbols Outlined",
+                  fontStyle: "normal",
+                  fontWeight: 400,
+                  fontSize: "1.2rem",
+                  lineHeight: 1,
+                  letterSpacing: "normal",
+                  textTransform: "none",
+                  display: "inline-block",
+                  whiteSpace: "nowrap",
+                  wordWrap: "normal",
+                  direction: "ltr",
+                  "-webkit-font-smoothing": "antialiased",
+                  textRendering: "optimizeLegibility",
+                  "-moz-osx-font-smoothing": "grayscale",
+                  fontFeatureSettings: "liga",
                 }}
               >
-                <span className="material-symbol">{icon}</span>
+                <span className="material-symbols">{icon}</span>
               </IonButton>
             ))}
 
@@ -229,13 +379,14 @@ const Create: React.FC = () => {
                 "--color": "var(--ion-color-light, #ffffff)",
                 "--border-radius": "8px",
               }}
+              onClick={() => setShowActionSheet(true)}
             >
-              Text Type
+              <span className="material-symbols">format_size</span>
             </IonButton>
 
-            {/* Action Sheet for Text Type Selection */}
             <IonActionSheet
-              trigger="open-action-sheet"
+              isOpen={showActionSheet}
+              onDidDismiss={() => setShowActionSheet(false)}
               header="Select Text Type"
               buttons={[
                 {
@@ -251,10 +402,6 @@ const Create: React.FC = () => {
                   handler: () => applyFormatting("H3"),
                 },
                 {
-                  text: "Body",
-                  handler: () => applyFormatting("Body"),
-                },
-                {
                   text: "Cancel",
                   role: "cancel",
                 },
@@ -266,6 +413,7 @@ const Create: React.FC = () => {
           <IonButton
             expand="block"
             onClick={handleSubmit}
+            disabled={!title || !content || !selectedBoardId}
             style={{
               "--background": "var(--ion-color-primary, #3880ff)",
               "--color": "var(--ion-color-light, #ffffff)",

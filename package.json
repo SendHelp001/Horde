@@ -26,6 +26,7 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
     "dompurify": "^3.2.5",
     "ionicons": "^7.4.0",
     "marked": "^15.0.11",

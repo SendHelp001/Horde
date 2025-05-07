@@ -1,20 +1,23 @@
-/* General FeedCard Styles */
+/* Base styles for mobile */
 .feed-card {
   display: flex;
-  padding: 12px 16px;
+  flex-direction: column;
+  padding: 10px; /* Slightly reduced padding for mobile */
   border-bottom: 1px solid #2f3336;
   cursor: pointer;
   transition: background 0.2s;
 }
 
-.feed-card:hover {
-  background-color: #1e1e1e;
+.feed-header-avatar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .feed-avatar {
-  width: 48px;
-  height: 48px;
-  margin-right: 12px;
+  width: 36px; /* Smaller avatar for mobile */
+  height: 36px;
+  margin-right: 8px;
   flex-shrink: 0;
 }
 
@@ -24,44 +27,72 @@
   height: 100%;
 }
 
-.feed-content {
-  flex: 1;
+.feed-header-info {
   display: flex;
   flex-direction: column;
 }
 
-.feed-header {
+.feed-username {
   font-weight: bold;
   color: #e7e9ea;
-  font-size: 15px;
-}
-
-.feed-username {
-  margin-right: 6px;
+  font-size: 13px;
+  margin-right: 4px;
 }
 
 .feed-timestamp {
   color: #71767b;
   font-weight: normal;
+  font-size: 11px;
 }
 
-.feed-text {
-  margin: 4px 0 8px;
+.feed-content {
+  margin-bottom: 6px;
+  white-space: pre-line;
   color: #e7e9ea;
-  font-size: 15px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.feed-image-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+/* Default aspect ratio for mobile (you can adjust this) */
+.feed-image-container {
+  aspect-ratio: 16 / 9; /* A common mobile screen ratio */
+}
+
+.feed-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Should work well with aspect ratio */
+  display: block;
 }
 
 .feed-actions {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   color: #71767b;
-  font-size: 14px;
+  font-size: 12px;
+  margin-top: 6px;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
+.feed-actions ion-button {
+  padding: 0;
+  height: auto;
+}
+
+.feed-actions ion-icon {
+  margin-right: 4px;
+}
+
+/* Media query for larger screens (if needed) */
+@media (min-width: 601px) {
   .feed-card {
-    padding: 10px 12px;
+    padding: 12px 16px;
   }
 
   .feed-avatar {
@@ -70,23 +101,22 @@
     margin-right: 10px;
   }
 
-  .feed-header {
+  .feed-username {
     font-size: 14px;
   }
 
-  .feed-text {
+  .feed-timestamp {
+    font-size: 12px;
+  }
+
+  .feed-content {
     font-size: 14px;
+    margin-bottom: 8px;
   }
 
   .feed-actions {
-    gap: 16px;
     font-size: 13px;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .feed-actions span {
-    padding: 5px 8px;
-    font-size: 14px;
+    gap: 16px;
+    margin-top: 8px;
   }
 }

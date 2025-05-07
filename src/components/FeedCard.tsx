@@ -1,7 +1,7 @@
 import React from "react";
-import { IonAvatar } from "@ionic/react";
-import ActionButton from "./ActionButton";
+import { IonAvatar, IonIcon, IonButton } from "@ionic/react";
 import "./FeedCard.css";
+import { repeatOutline } from "ionicons/icons";
 
 interface FeedCardProps {
   id: string;
@@ -11,6 +11,9 @@ interface FeedCardProps {
   username: string;
   timestamp: string;
   avatarUrl: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  imageAspectRatio?: "16-9" | "4-3" | "1-1";
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({
@@ -21,49 +24,50 @@ const FeedCard: React.FC<FeedCardProps> = ({
   username,
   timestamp,
   avatarUrl,
+  imageUrl,
+  imageAlt,
+  imageAspectRatio = "16-9",
 }) => {
-  // Example counts for actions
-  const commentCount = 57;
-  const shareCount = 18;
-  const likeCount = 873;
-  const pinCount = 73000;
+  const imageContainerClass = imageUrl
+    ? `feed-image-container aspect-ratio-${imageAspectRatio}`
+    : "";
 
   return (
     <div className="feed-card" onClick={() => onClick(id)}>
-      <IonAvatar className="feed-avatar">
-        <img src={avatarUrl} alt="avatar" />
-      </IonAvatar>
-      <div className="feed-content">
-        <div className="feed-header">
+      <div className="feed-header-avatar">
+        <IonAvatar className="feed-avatar">
+          <img src={avatarUrl} alt="avatar" />
+        </IonAvatar>
+        <div className="feed-header-info">
           <span className="feed-username">{username}</span>
           <span className="feed-timestamp">· {timestamp}</span>
         </div>
+      </div>
+      <div className="feed-content">
         <div className="feed-text">{content}</div>
+        {imageUrl && (
+          <div className={imageContainerClass}>
+            <img
+              src={imageUrl}
+              alt={imageAlt || title}
+              className="feed-image"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+              onError={(event) => {
+                console.error("Error loading image:", event.currentTarget.src);
+              }}
+            />
+          </div>
+        )}
         <div className="feed-actions">
-          <ActionButton
-            icon="comment"
-            label="Comment"
-            count={commentCount}
-            onClick={() => console.log("Comment clicked")}
-          />
-          <ActionButton
-            icon="share"
-            label="Share"
-            count={shareCount}
-            onClick={() => console.log("Share clicked")}
-          />
-          <ActionButton
-            icon="favorite"
-            label="Like"
-            count={likeCount}
-            onClick={() => console.log("Like clicked")}
-          />
-          <ActionButton
-            icon="push_pin"
-            label="Pin"
-            count={pinCount}
-            onClick={() => console.log("Pin clicked")}
-          />
+          <IonButton fill="clear" onClick={() => console.log(`Reply to post ${id}`)}>
+            <IonIcon icon={repeatOutline} slot="icon-only" aria-label="Reply" />
+            Reply
+          </IonButton>
         </div>
       </div>
     </div>

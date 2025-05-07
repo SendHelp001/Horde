@@ -8,23 +8,38 @@ import {
   IonAvatar,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
+  IonImg, // Import IonImg for displaying images
+  IonItemDivider, // Import IonItemDivider
 } from "@ionic/react";
 import { useEffect, useState, useCallback } from "react";
+import { format } from "date-fns"; // Import the format function from date-fns
 import { supabase } from "../utils/supabaseClient";
 import { useHistory } from "react-router-dom";
 import Loader from "./Loader";
 import FeedCard from "./FeedCard";
 import "./FeedContainer.css";
+import devil from "/assets/devil.png"; // Adjust the path as necessary
+
+interface Guide {
+  id: string;
+  title: string;
+  content: string;
+  image_url: string | null; // Add the image_url field
+  image_alt: string | null; // Optional: for alt text
+  created_at: string; // Assuming you might want to display this
+  user_id: string | null; // If you have user information
+  image_aspect_ratio?: "16-9" | "4-3" | "1-1"; // Optional field in your data
+}
 
 const Home: React.FC = () => {
-  const [posts, setPosts] = useState<{ id: string; title: string; content: string }[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0); // Start with page 0
   const history = useHistory();
-  const postsPerPage = 10; // Adjust as needed
+  const guidesPerPage = 10; // Adjust as needed
 
-  const fetchPosts = useCallback(
+  const fetchGuides = useCallback(
     async (event?: any) => {
       if (loading || !hasMore) {
         if (event) {
@@ -34,13 +49,17 @@ const Home: React.FC = () => {
       }
       setLoading(true);
 
-      const start = page * postsPerPage;
-      const end = (page + 1) * postsPerPage - 1;
+      const start = page * guidesPerPage;
+      const end = (page + 1) * guidesPerPage - 1;
 
-      const { data, error } = await supabase.from("guides").select("*").range(start, end);
+      const { data, error } = await supabase
+        .from("guides")
+        .select("*") // Fetch all columns, including image_url
+        .range(start, end)
+        .order("created_at", { ascending: false }); // Order by creation date, newest first
 
       if (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Error fetching guides:", error);
         if (event) {
           event.target.complete();
         }
@@ -49,14 +68,13 @@ const Home: React.FC = () => {
       }
 
       if (data) {
-        setPosts((prevPosts) => {
-          // Ensure no duplicates by checking if the new posts already exist
-          const newPosts = data.filter(
-            (newPost) => !prevPosts.some((existingPost) => existingPost.id === newPost.id)
+        setGuides((prevGuides) => {
+          const newGuides = data.filter(
+            (newGuide) => !prevGuides.some((existingGuide) => existingGuide.id === newGuide.id)
           );
-          return [...prevPosts, ...newPosts];
+          return [...prevGuides, ...newGuides];
         });
-        if (data.length < postsPerPage) {
+        if (data.length < guidesPerPage) {
           setHasMore(false);
         } else {
           setPage((prevPage) => prevPage + 1);
@@ -68,19 +86,27 @@ const Home: React.FC = () => {
       }
       setLoading(false);
     },
-    [hasMore, loading, page, postsPerPage]
+    [hasMore, loading, page, guidesPerPage]
   );
 
   useEffect(() => {
-    // Initial fetch only if no posts are loaded yet
-    if (posts.length === 0) {
-      fetchPosts();
+    if (guides.length === 0) {
+      fetchGuides();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchPosts, posts.length]);
+  }, [fetchGuides, guides.length]);
 
-  const handlePostClick = (postId: string) => {
-    history.push(`/horde/app/post/${postId}`);
+  const handleGuideClick = (guideId: string) => {
+    history.push(`/horde/app/post/${guideId}`);
+  };
+
+  const formatTimestamp = (timestamp: string): string => {
+    try {
+      return format(new Date(timestamp), "yyyy-MM-dd HH:mm:ss"); // Customize the format as needed
+    } catch (error) {
+      console.error("Error formatting timestamp:", error);
+      return "Just now"; // Fallback if formatting fails
+    }
   };
 
   return (
@@ -106,23 +132,28 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-        {posts.map((post) => (
-          <FeedCard
-            key={post.id}
-            id={post.id}
-            title={post.title}
-            content={post.content}
-            onClick={handlePostClick}
-            username="Anonymous"
-            timestamp="2h ago"
-            avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg"
-          />
+        {guides.map((guide, index) => (
+          <div key={guide.id} className="feed-item">
+            <FeedCard
+              id={guide.id}
+              title={guide.title}
+              content={guide.content}
+              onClick={handleGuideClick}
+              username="Anonymous" // You can fetch user info if available
+              timestamp={formatTimestamp(guide.created_at)} // Format the timestamp
+              avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg" // Default avatar
+              imageUrl={guide.image_url} // Pass the image URL
+              imageAlt={guide.image_alt} // Pass the image alt text
+              imageAspectRatio={guide.image_aspect_ratio}
+            />
+            {index < guides.length - 1 && <IonItemDivider className="feed-divider" />}
+          </div>
         ))}
 
-        <IonInfiniteScroll threshold="100px" disabled={!hasMore} onIonInfinite={fetchPosts}>
+        <IonInfiniteScroll threshold="100px" disabled={!hasMore} onIonInfinite={fetchGuides}>
           <IonInfiniteScrollContent
             loadingSpinner="bubbles"
-            loadingText="Loading more posts..."
+            loadingText="Loading more guides..."
           ></IonInfiniteScrollContent>
         </IonInfiniteScroll>
 
@@ -134,22 +165,18 @@ const Home: React.FC = () => {
               borderRadius: "15px",
               border: "1px solid #dc3545",
               backgroundColor: "transparent",
-              display: "flex", // Use flex to center content
+              display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: "6px",
               marginBottom: "60px",
               fontSize: "0.9rem",
-              padding: "6px 10px", // Adjust padding for better visual
-              alignSelf: "center", // Center the div itself
+              padding: "6px 10px",
+              alignSelf: "center",
             }}
           >
             <span>End of Doom</span>
-            <img
-              src={"src/assets/devil.png"}
-              alt="Devil Icon"
-              style={{ width: "18px", height: "18px" }}
-            />
+            <img src={devil} alt="Logo" style={{ width: "18px", height: "18px" }} />
           </div>
         )}
 

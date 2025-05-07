@@ -45,3 +45,28 @@
 .no-pulse::part(native) {
   --ripple-effect: none;
 }
+
+.feed-item {
+  margin-bottom: 20px;
+}
+
+.feed-image-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+  max-height: 500px;
+}
+
+.feed-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.feed-divider {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}

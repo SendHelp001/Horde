@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonPage, useIonRouter } from "@ionic/react";
-import homeIcon from "../../public/homeIcon.png";
+import homeIcon from "/homeIcon.png";
 import "./Login.css";
 
 const Login: React.FC = () => {

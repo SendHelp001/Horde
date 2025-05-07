@@ -1,3 +1,20 @@
-.post-content p {
-  white-space: pre-wrap; /* Preserve whitespace and wrap text */
+/* Optional: Style for the modal content (in your CSS file) */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center image vertically */
+  align-items: center; /* Center image horizontally */
+}
+
+/* Style for the image modal to ensure the close button is visible */
+.image-modal ion-content {
+  --padding-top: 20px; /* Add some top padding to prevent overlap with close button */
+  --padding-end: 20px;
+  --padding-bottom: 20px;
+  --padding-start: 20px;
+}
+
+.image-modal ion-button[slot="top"] {
+  color: var(--ion-color-dark); /* Ensure the close button has a visible color */
+  opacity: 1; /* Make sure it's not transparent */
 }
