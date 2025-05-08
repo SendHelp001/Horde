@@ -26,10 +26,10 @@ interface Guide {
   id: string;
   title: string;
   content: string;
-  image_url: string | null; // Add the image_url field
-  image_alt: string | null; // Optional: for alt text
-  created_at: string; // Assuming you might want to display this
-  user_id?: number | null; // If you have user information
+  image_url: string | null;
+  image_alt: string | null;
+  created_at: string;
+  user_id?: number | null;
   image_name: string | null;
   image_type: string | null;
   board_id: number | null;
@@ -161,7 +161,7 @@ const FeedContainer: React.FC = () => {
             imageUrl={guide.image_url}
             imageAlt={guide.image_alt}
             imageAspectRatio={guide.image_aspect_ratio}
-            board={guide.board || undefined} // ✅ Convert null to undefined for compatibility
+            board={guide.board || undefined}
           />
           {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
         </div>
