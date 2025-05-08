@@ -122,7 +122,7 @@ const Home: React.FC = () => {
   }, [fetchGuides, guides.length, fetchError]);
 
   const handleGuideClick = (guideId: string) => {
-    history.push(`/Horde/app/post/${guideId}`);
+    history.push(`/horde/app/post/${guideId}`);
   };
 
   const formatTimestamp = (timestamp: string): string => {
@@ -146,20 +146,11 @@ const Home: React.FC = () => {
     <IonPage role="feed">
       <IonHeader>
         <IonToolbar>
-          <div className="toolbar-container">
-            <IonButton
-              fill="clear"
-              onClick={() => history.push("/profile")}
-              className="avatar-button"
-            >
-              <IonAvatar slot="icon-only" className="custom-avatar">
-                <img
-                  alt="Silhouette of a person's head"
-                  src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                />
-              </IonAvatar>
-            </IonButton>
-          </div>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Feed</IonTitle>
+            </IonToolbar>
+          </IonHeader>
         </IonToolbar>
       </IonHeader>
 

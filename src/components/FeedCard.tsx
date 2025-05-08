@@ -42,7 +42,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
 
   const handleBoardClick = (e: React.MouseEvent, slug: string) => {
     e.stopPropagation(); // Prevent the FeedCard's onClick
-    history.push(`/Horde/app/board/${slug}`);
+    history.push(`/horde/app/board/${slug}`);
   };
 
   return (
@@ -64,7 +64,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
               /{board.slug}
             </IonChip>
             <a
-              href={`/Horde/app/board/${board.slug}`}
+              href={`/horde/app/board/${board.slug}`}
               onClick={(e) => handleBoardClick(e, board.slug)}
               style={{
                 color: "#4EA1FF",

@@ -6,7 +6,7 @@ const Login: React.FC = () => {
   const navigation = useIonRouter();
 
   const handleAnonymousLogin = () => {
-    navigation.push("/Horde/app/Feed", "forward", "replace"); // Redirect to the Menu component
+    navigation.push("/horde/app/Feed", "forward", "replace"); // Redirect to the Menu component
     console.log("Anonymous login initiated."); // Optional: Log the action
     // In a real scenario, you might want to set some kind of anonymous session here.
   };
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
             <img src={homeIcon} alt="Logo" className="logo" />
           </div>
 
-          <h1 className="welcome-text">Horde</h1>
+          <h1 className="welcome-text">horde</h1>
 
           {/* Login Button */}
           <IonButton expand="block" className="login-button" onClick={handleAnonymousLogin}>

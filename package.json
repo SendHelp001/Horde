@@ -1,9 +1,9 @@
 {
-  "name": "Horde",
+  "name": "horde",
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "https://SendHelp001.github.io/Horde/",
+  "homepage": "https://SendHelp001.github.io/horde/",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",

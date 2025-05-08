@@ -58,7 +58,7 @@ const Explore: React.FC = () => {
   }, []);
 
   const handleBoardClick = (slug: string) => {
-    history.push(`/Horde/app/board/${slug}`);
+    history.push(`/horde/app/board/${slug}`);
   };
 
   return (

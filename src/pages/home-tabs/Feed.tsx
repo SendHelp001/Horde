@@ -20,16 +20,11 @@ const Feed: React.FC = () => {
     }
   });
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Feed</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+    <>
       <IonContent ref={contentRef} fullscreen>
         <FeedContainer />
       </IonContent>{" "}
-    </IonPage>
+    </>
   );
 };
 
