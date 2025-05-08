@@ -29,6 +29,11 @@ interface Guide {
   created_at: string; // Assuming you might want to display this
   user_id: string | null; // If you have user information
   image_aspect_ratio?: "16-9" | "4-3" | "1-1"; // Optional field in your data
+  boards?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 const Home: React.FC = () => {
@@ -70,7 +75,10 @@ const Home: React.FC = () => {
       if (data) {
         setGuides((prevGuides) => {
           const newGuides = data.filter(
-            (newGuide) => !prevGuides.some((existingGuide) => existingGuide.id === newGuide.id)
+            (newGuide) =>
+              !prevGuides.some(
+                (existingGuide) => existingGuide.id === newGuide.id
+              )
           );
           return [...prevGuides, ...newGuides];
         });
@@ -126,7 +134,11 @@ const Home: React.FC = () => {
                 />
               </IonAvatar>
             </IonButton>
-            <img src="/homeIcon.png" alt="Home Icon" className="home-icon-png" />
+            <img
+              src="/homeIcon.png"
+              alt="Home Icon"
+              className="home-icon-png"
+            />
           </div>
         </IonToolbar>
       </IonHeader>
@@ -139,18 +151,23 @@ const Home: React.FC = () => {
               title={guide.title}
               content={guide.content}
               onClick={handleGuideClick}
-              username="Anonymous" // You can fetch user info if available
-              timestamp={formatTimestamp(guide.created_at)} // Format the timestamp
-              avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg" // Default avatar
-              imageUrl={guide.image_url} // Pass the image URL
-              imageAlt={guide.image_alt} // Pass the image alt text
+              username="Anonymous"
+              timestamp={formatTimestamp(guide.created_at)}
+              avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg"
+              imageUrl={guide.image_url}
+              imageAlt={guide.image_alt}
               imageAspectRatio={guide.image_aspect_ratio}
+              boards={guide.boards} // ✅ Add this line
             />
             {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
           </div>
         ))}
 
-        <IonInfiniteScroll threshold="100px" disabled={!hasMore} onIonInfinite={fetchGuides}>
+        <IonInfiniteScroll
+          threshold="100px"
+          disabled={!hasMore}
+          onIonInfinite={fetchGuides}
+        >
           <IonInfiniteScrollContent
             loadingSpinner="bubbles"
             loadingText="Loading more guides..."
@@ -176,7 +193,11 @@ const Home: React.FC = () => {
             }}
           >
             <span>End of Doom</span>
-            <img src={devil} alt="Logo" style={{ width: "18px", height: "18px" }} />
+            <img
+              src={devil}
+              alt="Logo"
+              style={{ width: "18px", height: "18px" }}
+            />
           </div>
         )}
 

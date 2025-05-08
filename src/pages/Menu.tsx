@@ -23,6 +23,7 @@ import Explore from "../pages/home-tabs/Explore";
 import PostDetail from "../pages/home-tabs/PostDetail";
 import Notifications from "../pages/home-tabs/Notifications";
 import Feed from "../pages/home-tabs/Feed";
+import BoardPostsPage from "./boards/BoardPostsPage";
 
 const Menu: React.FC = () => {
   return (
@@ -32,6 +33,11 @@ const Menu: React.FC = () => {
           <Switch>
             <Route exact path="/horde/app/Feed" component={Feed} />
             <Route exact path="/horde/app/explore" component={Explore} />
+            <Route
+              path="/horde/app/board/:slug"
+              component={BoardPostsPage}
+              exact
+            />
             <Route exact path="/horde/app/create" component={Create} />
             {/* <Route exact path="/horde/app/notifications" component={Notifications} /> */}
             <Route path="/horde/app/post/:postId" component={PostDetail} />

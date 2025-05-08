@@ -1,5 +1,5 @@
 import React from "react";
-import { IonAvatar, IonIcon, IonButton } from "@ionic/react";
+import { IonAvatar, IonIcon, IonButton, IonChip } from "@ionic/react";
 import "./FeedCard.css";
 import { repeatOutline } from "ionicons/icons";
 
@@ -14,6 +14,12 @@ interface FeedCardProps {
   imageUrl: string | null;
   imageAlt: string | null;
   imageAspectRatio?: "16-9" | "4-3" | "1-1";
+  boards?: {
+    // Corrected prop name to 'boards' to match BoardPostsPage
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({
@@ -27,21 +33,43 @@ const FeedCard: React.FC<FeedCardProps> = ({
   imageUrl,
   imageAlt,
   imageAspectRatio = "16-9",
+  boards, // Using the 'boards' prop
 }) => {
+  console.log("FeedCard props:", {
+    id,
+    title,
+    content,
+    onClick,
+    username,
+    timestamp,
+    avatarUrl,
+    imageUrl,
+    imageAlt,
+    imageAspectRatio,
+    boards,
+  });
+
   const imageContainerClass = imageUrl
     ? `feed-image-container aspect-ratio-${imageAspectRatio}`
     : "";
 
   return (
     <div className="feed-card" onClick={() => onClick(id)}>
-      <div className="feed-header-avatar">
-        <IonAvatar className="feed-avatar">
-          <img src={avatarUrl} alt="avatar" />
-        </IonAvatar>
-        <div className="feed-header-info">
-          <span className="feed-username">{username}</span>
-          <span className="feed-timestamp">· {timestamp}</span>
+      <div className="feed-header">
+        <div className="feed-header-avatar">
+          <IonAvatar className="feed-avatar">
+            <img src={avatarUrl} alt="avatar" />
+          </IonAvatar>
+          <div className="feed-header-info">
+            <span className="feed-username">{username}</span>
+            <span className="feed-timestamp">· {timestamp}</span>
+          </div>
         </div>
+        {boards?.name && (
+          <div className="feed-board-tag">
+            From the <strong>{boards.name}</strong> tag
+          </div>
+        )}
       </div>
       <div className="feed-content">
         <div className="feed-text">{content}</div>
@@ -64,7 +92,10 @@ const FeedCard: React.FC<FeedCardProps> = ({
           </div>
         )}
         <div className="feed-actions">
-          <IonButton fill="clear" onClick={() => console.log(`Reply to post ${id}`)}>
+          <IonButton
+            fill="clear"
+            onClick={() => console.log(`Reply to post ${id}`)}
+          >
             <IonIcon icon={repeatOutline} slot="icon-only" aria-label="Reply" />
             Reply
           </IonButton>
