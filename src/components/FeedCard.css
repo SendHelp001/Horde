@@ -1,8 +1,7 @@
-/* Base styles for mobile */
 .feed-card {
   display: flex;
   flex-direction: column;
-  padding: 10px; /* Slightly reduced padding for mobile */
+  padding: 10px;
   border-bottom: 1px solid #2f3336;
   cursor: pointer;
   transition: background 0.2s;
@@ -21,7 +20,7 @@
 }
 
 .feed-avatar {
-  width: 36px; /* Smaller avatar for mobile */
+  width: 36px;
   height: 36px;
   margin-right: 8px;
   flex-shrink: 0;
@@ -66,15 +65,14 @@
   margin-bottom: 6px;
 }
 
-/* Default aspect ratio for mobile (you can adjust this) */
 .feed-image-container {
-  aspect-ratio: 16 / 9; /* A common mobile screen ratio */
+  aspect-ratio: 16 / 9;
 }
 
 .feed-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Should work well with aspect ratio */
+  object-fit: cover;
   display: block;
 }
 
@@ -95,7 +93,6 @@
   margin-right: 4px;
 }
 
-/* Media query for larger screens (if needed) */
 @media (min-width: 601px) {
   .feed-card {
     padding: 12px 16px;

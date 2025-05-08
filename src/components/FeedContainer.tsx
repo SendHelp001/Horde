@@ -10,6 +10,8 @@ import {
   IonInfiniteScrollContent,
   IonImg, // Import IonImg for displaying images
   IonItemDivider, // Import IonItemDivider
+  IonRefresher,
+  IonRefresherContent,
 } from "@ionic/react";
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns"; // Import the format function from date-fns
@@ -27,13 +29,17 @@ interface Guide {
   image_url: string | null; // Add the image_url field
   image_alt: string | null; // Optional: for alt text
   created_at: string; // Assuming you might want to display this
-  user_id: string | null; // If you have user information
+  user_id?: number | null; // If you have user information
+  image_name: string | null;
+  image_type: string | null;
+  board_id: number | null;
   image_aspect_ratio?: "16-9" | "4-3" | "1-1"; // Optional field in your data
-  boards?: {
+  board: {
     id: number;
     name: string;
     slug: string;
-  };
+    description: string;
+  } | null;
 }
 
 const Home: React.FC = () => {
@@ -41,12 +47,13 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0); // Start with page 0
+  const [fetchError, setFetchError] = useState(false);
   const history = useHistory();
   const guidesPerPage = 10; // Adjust as needed
 
   const fetchGuides = useCallback(
-    async (event?: any) => {
-      if (loading || !hasMore) {
+    async (reload = false, event?: any) => {
+      if (loading || (!hasMore && !reload) || fetchError) {
         if (event) {
           event.target.complete();
         }
@@ -54,17 +61,24 @@ const Home: React.FC = () => {
       }
       setLoading(true);
 
-      const start = page * guidesPerPage;
-      const end = (page + 1) * guidesPerPage - 1;
+      if (reload) {
+        setPage(0);
+        setGuides([]);
+        setHasMore(true);
+        setFetchError(false);
+      }
 
-      const { data, error } = await supabase
-        .from("guides")
-        .select("*") // Fetch all columns, including image_url
-        .range(start, end)
-        .order("created_at", { ascending: false }); // Order by creation date, newest first
+      const start = reload ? 0 : page * guidesPerPage;
+      const end = start + guidesPerPage - 1;
+
+      const { data, error } = await supabase.rpc("get_guides_with_boards", {
+        p_from: start,
+        p_to: end,
+      });
 
       if (error) {
         console.error("Error fetching guides:", error);
+        setFetchError(true);
         if (event) {
           event.target.complete();
         }
@@ -73,15 +87,18 @@ const Home: React.FC = () => {
       }
 
       if (data) {
+        const mappedGuides: Guide[] = data.map((guide: any) => ({
+          ...guide,
+          board: guide.board_data,
+        }));
+
         setGuides((prevGuides) => {
-          const newGuides = data.filter(
-            (newGuide) =>
-              !prevGuides.some(
-                (existingGuide) => existingGuide.id === newGuide.id
-              )
+          const newGuides = mappedGuides.filter(
+            (newGuide) => !prevGuides.some((g) => g.id === newGuide.id)
           );
-          return [...prevGuides, ...newGuides];
+          return reload ? newGuides : [...prevGuides, ...newGuides];
         });
+
         if (data.length < guidesPerPage) {
           setHasMore(false);
         } else {
@@ -94,15 +111,15 @@ const Home: React.FC = () => {
       }
       setLoading(false);
     },
-    [hasMore, loading, page, guidesPerPage]
+    [hasMore, loading, page, fetchError]
   );
 
   useEffect(() => {
-    if (guides.length === 0) {
-      fetchGuides();
+    if (guides.length === 0 && !fetchError) {
+      fetchGuides(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchGuides, guides.length]);
+  }, [fetchGuides, guides.length, fetchError]);
 
   const handleGuideClick = (guideId: string) => {
     history.push(`/horde/app/post/${guideId}`);
@@ -114,6 +131,14 @@ const Home: React.FC = () => {
     } catch (error) {
       console.error("Error formatting timestamp:", error);
       return "Just now"; // Fallback if formatting fails
+    }
+  };
+
+  const handleRefresh = (event: CustomEvent<any>) => {
+    if (!fetchError) {
+      fetchGuides(true, event);
+    } else {
+      event.detail.complete();
     }
   };
 
@@ -134,16 +159,15 @@ const Home: React.FC = () => {
                 />
               </IonAvatar>
             </IonButton>
-            <img
-              src="/homeIcon.png"
-              alt="Home Icon"
-              className="home-icon-png"
-            />
           </div>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
+
         {guides.map((guide, index) => (
           <div key={guide.id} className="feed-item">
             <FeedCard
@@ -157,7 +181,7 @@ const Home: React.FC = () => {
               imageUrl={guide.image_url}
               imageAlt={guide.image_alt}
               imageAspectRatio={guide.image_aspect_ratio}
-              boards={guide.boards} // ✅ Add this line
+              board={guide.board || undefined} // ✅ Convert null to undefined for compatibility
             />
             {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
           </div>
@@ -166,7 +190,7 @@ const Home: React.FC = () => {
         <IonInfiniteScroll
           threshold="100px"
           disabled={!hasMore}
-          onIonInfinite={fetchGuides}
+          onIonInfinite={(event) => fetchGuides(false, event)}
         >
           <IonInfiniteScrollContent
             loadingSpinner="bubbles"
@@ -193,11 +217,7 @@ const Home: React.FC = () => {
             }}
           >
             <span>End of Doom</span>
-            <img
-              src={devil}
-              alt="Logo"
-              style={{ width: "18px", height: "18px" }}
-            />
+            <img src={devil} alt="Logo" style={{ width: "18px", height: "18px" }} />
           </div>
         )}
 

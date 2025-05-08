@@ -8,6 +8,7 @@ import {
   IonItem,
   IonLabel,
   useIonViewDidEnter,
+  IonChip,
 } from "@ionic/react";
 import { useRef, useState, useEffect } from "react";
 import { transitionFade } from "../../animations/transition";
@@ -71,20 +72,25 @@ const Explore: React.FC = () => {
         {loading ? (
           <p>Loading available boards...</p>
         ) : (
-          <IonList>
-            {boards.map((board) => (
-              <IonItem
-                key={board.id}
-                onClick={() => handleBoardClick(board.slug)}
-                detail // Adds a visual cue that the item is clickable
-              >
-                <IonLabel>
-                  <h2>{board.name}</h2>
-                  {board.description && <p>{board.description}</p>}
-                </IonLabel>
-              </IonItem>
-            ))}
-          </IonList>
+          <div style={{ marginBottom: "100px" }}>
+            <IonList>
+              {boards.map((board) => (
+                <IonItem key={board.id} onClick={() => handleBoardClick(board.slug)} detail>
+                  <IonLabel>
+                    <div>
+                      <IonLabel style={{ display: "flex", alignItems: "center" }}>
+                        <h2>{board.name}</h2>
+                        <IonChip color="secondary" outline style={{ marginTop: "0px" }}>
+                          {board.slug}
+                        </IonChip>
+                      </IonLabel>
+                    </div>
+                    {board.description && <p style={{ marginTop: "8px" }}>{board.description}</p>}
+                  </IonLabel>
+                </IonItem>
+              ))}
+            </IonList>
+          </div>
         )}
       </IonContent>
     </IonPage>

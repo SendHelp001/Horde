@@ -14,6 +14,7 @@ import {
   IonList,
   IonAvatar,
   useIonToast,
+  IonChip,
 } from "@ionic/react";
 import Markdown from "marked-react";
 import { useParams } from "react-router-dom";
@@ -38,6 +39,7 @@ interface PostWithReplies {
   content: string;
   image_url?: string | null;
   created_at: string;
+  board_slug?: string | null;
   replies: Reply[];
 }
 
@@ -73,7 +75,14 @@ const PostDetail: React.FC = () => {
       try {
         const { data: postData, error: postError } = await supabase
           .from("guides")
-          .select("*")
+          .select(
+            `
+        *,
+        boards (
+          slug
+        )
+      `
+          )
           .eq("id", postId)
           .single();
 
@@ -86,12 +95,15 @@ const PostDetail: React.FC = () => {
         if (postError || repliesError) {
           setError("Failed to load post details and replies.");
         } else if (postData) {
+          const boardSlug = postData.boards?.slug || null;
+
           setPostWithReplies({
             ...postData,
-            replies: buildNestedReplies((repliesData as Reply[]) || []),
+            board_slug: boardSlug,
+            replies: buildNestedReplies((repliesData || []) as Reply[]),
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         setError("An unexpected error occurred.");
       } finally {
         setLoading(false);
@@ -165,7 +177,8 @@ const PostDetail: React.FC = () => {
       const now = new Date();
       const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
       const fileExtension = file.name.substring(file.name.lastIndexOf("."));
-      const newFileName = `<span class="math-inline">\{timestamp\}</span>{fileExtension}`;
+      const sanitizedFileName = sanitizeFileName(file.name.split(".")[0]);
+      const newFileName = `<span class="math-inline">\{sanitizedFileName\}\_</span>{timestamp}${fileExtension}`;
       const filePath = `replies/<span class="math-inline">\{postId\}/</span>{newFileName}`;
 
       const { data, error: uploadError } = await supabase.storage
@@ -179,6 +192,7 @@ const PostDetail: React.FC = () => {
 
       const publicUrl =
         supabase.storage.from("reply-images").getPublicUrl(filePath).data?.publicUrl || null;
+
       return { data: { path: filePath, publicUrl, name: file.name, type: file.type } };
     } catch (error: any) {
       console.error("Error during image upload:", error);
@@ -289,10 +303,9 @@ const PostDetail: React.FC = () => {
       <div
         key={reply.id}
         style={{
-          marginLeft: `${depth * 16}px`,
-          paddingLeft: depth > 0 ? "8px" : "0",
-          marginBottom: "6px",
-          position: "relative",
+          marginLeft: `${depth * 12}px`,
+          paddingLeft: depth > 0 ? "6px" : "0",
+          marginBottom: "4px",
           borderLeft: depth > 0 ? `1px solid #333` : "none",
         }}
       >
@@ -307,7 +320,7 @@ const PostDetail: React.FC = () => {
             color: "#fff",
           }}
         >
-          <IonAvatar slot="start" style={{ width: "24px", height: "24px", marginRight: "8px" }}>
+          <IonAvatar slot="start" style={{ width: "20px", height: "20px", marginRight: "6px" }}>
             <img
               src="https://ionicframework.com/docs/img/demos/avatar.svg"
               alt="Anonymous User"
@@ -323,13 +336,8 @@ const PostDetail: React.FC = () => {
                 marginBottom: "1px",
               }}
             >
-              <h3 style={{ fontSize: "0.8em", fontWeight: "bold", margin: "0", color: "#eee" }}>
-                Anonymous
-              </h3>
-              <p
-                className="reply-metadata"
-                style={{ fontSize: "0.6em", color: "#999", margin: "0" }}
-              >
+              <h3 style={{ fontSize: "0.75em", margin: 0, fontWeight: 500 }}>Anonymous</h3>
+              <p style={{ fontSize: "0.6em", margin: 0, color: "#888" }}>
                 {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
               </p>
             </div>
@@ -407,9 +415,27 @@ const PostDetail: React.FC = () => {
               borderRadius: "6px",
             }}
           >
-            <h2 style={{ fontSize: "1em", fontWeight: "bold", marginBottom: "4px", color: "#eee" }}>
-              {postWithReplies.title}
-            </h2>
+            <div style={{ display: "flex", alignItems: "baseline", marginBottom: "4px" }}>
+              <h2
+                style={{
+                  fontSize: "1em",
+                  fontWeight: "bold",
+                  margin: "0",
+                  color: "#eee",
+                  marginRight: "8px",
+                }}
+              >
+                {postWithReplies.title}
+              </h2>
+              {!loading && postWithReplies && postWithReplies.board_slug && (
+                <IonChip color="primary" outline style={{ marginLeft: "8px", fontSize: "0.7em" }}>
+                  /{postWithReplies.board_slug}/
+                </IonChip>
+              )}
+              <span style={{ fontSize: "0.7em", color: "#999", marginLeft: "8px" }}>
+                No. {postId}
+              </span>
+            </div>
             <p
               className="post-metadata"
               style={{ fontSize: "0.7em", color: "#999", marginBottom: "6px" }}
