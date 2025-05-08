@@ -178,8 +178,8 @@ const PostDetail: React.FC = () => {
       const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
       const fileExtension = file.name.substring(file.name.lastIndexOf("."));
       const sanitizedFileName = sanitizeFileName(file.name.split(".")[0]);
-      const newFileName = `<span class="math-inline">\{sanitizedFileName\}\_</span>{timestamp}${fileExtension}`;
-      const filePath = `replies/<span class="math-inline">\{postId\}/</span>{newFileName}`;
+      const newFileName = `${sanitizedFileName}_${timestamp}${fileExtension}`;
+      const filePath = `replies/${postId}/${newFileName}`;
 
       const { data, error: uploadError } = await supabase.storage
         .from("reply-images")
