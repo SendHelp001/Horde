@@ -1,12 +1,12 @@
 import { IonButton, IonContent, IonPage, useIonRouter } from "@ionic/react";
-import homeIcon from "/assets/homeIcon.png";
+import homeIcon from "../assets/homeIcon.png";
 import "./Login.css";
 
 const Login: React.FC = () => {
   const navigation = useIonRouter();
 
   const handleAnonymousLogin = () => {
-    navigation.push("/horde/app/Feed", "forward", "replace"); // Redirect to the Menu component
+    navigation.push("/Horde/app/Feed", "forward", "replace"); // Redirect to the Menu component
     console.log("Anonymous login initiated."); // Optional: Log the action
     // In a real scenario, you might want to set some kind of anonymous session here.
   };

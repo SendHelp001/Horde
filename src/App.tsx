@@ -35,7 +35,7 @@ import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-import { AuthProvider } from "./utils/AuthProvider";
+
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
 import Signup from "./pages/Signup";
@@ -46,9 +46,9 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route exact path="/horde" component={Login} />
-        <Route path="/horde/app" component={Menu} />
-        <Route path="/horde/signup" component={Signup} />
+        <Route exact path="/Horde" component={Login} />
+        <Route path="/Horde/app" component={Menu} />
+        <Route path="/Horde/signup" component={Signup} />
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

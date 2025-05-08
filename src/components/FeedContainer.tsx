@@ -20,7 +20,7 @@ import { useHistory } from "react-router-dom";
 import Loader from "./Loader";
 import FeedCard from "./FeedCard";
 import "./FeedContainer.css";
-import devil from "/assets/devil.png"; // Adjust the path as necessary
+import devil from "../assets/devil.png"; // Adjust the path as necessary
 
 interface Guide {
   id: string;
@@ -122,7 +122,7 @@ const Home: React.FC = () => {
   }, [fetchGuides, guides.length, fetchError]);
 
   const handleGuideClick = (guideId: string) => {
-    history.push(`/horde/app/post/${guideId}`);
+    history.push(`/Horde/app/post/${guideId}`);
   };
 
   const formatTimestamp = (timestamp: string): string => {

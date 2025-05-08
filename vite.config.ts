@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     legacy()
   ],
-  base: '/horde',
+  base: '/Horde',
     test: {
     globals: true,
     environment: 'jsdom',

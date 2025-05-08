@@ -31,44 +31,40 @@ const Menu: React.FC = () => {
       <IonTabs>
         <IonRouterOutlet id="main">
           <Switch>
-            <Route exact path="/horde/app/Feed" component={Feed} />
-            <Route exact path="/horde/app/explore" component={Explore} />
-            <Route
-              path="/horde/app/board/:slug"
-              component={BoardPostsPage}
-              exact
-            />
-            <Route exact path="/horde/app/create" component={Create} />
-            {/* <Route exact path="/horde/app/notifications" component={Notifications} /> */}
-            <Route path="/horde/app/post/:postId" component={PostDetail} />
-            <Route exact path="/horde/app">
-              <Redirect to="/horde/app/Feed" />
+            <Route exact path="/Horde/app/Feed" component={Feed} />
+            <Route exact path="/Horde/app/explore" component={Explore} />
+            <Route path="/Horde/app/board/:slug" component={BoardPostsPage} exact />
+            <Route exact path="/Horde/app/create" component={Create} />
+            {/* <Route exact path="/Horde/app/notifications" component={Notifications} /> */}
+            <Route path="/Horde/app/post/:postId" component={PostDetail} />
+            <Route exact path="/Horde/app">
+              <Redirect to="/Horde/app/Feed" />
             </Route>
           </Switch>
         </IonRouterOutlet>
 
         <IonTabBar slot="bottom">
-          <IonTabButton tab="feed" href="/horde/app/Feed">
+          <IonTabButton tab="feed" href="/Horde/app/Feed">
             <IonIcon icon={homeOutline} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="explore" href="/horde/app/explore">
+          <IonTabButton tab="explore" href="/Horde/app/explore">
             <IonIcon icon={searchOutline} />
             <IonLabel>Explore</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="create" href="/horde/app/create">
+          <IonTabButton tab="create" href="/Horde/app/create">
             <IonIcon icon={addOutline} />
             <IonLabel>Create</IonLabel>
           </IonTabButton>
 
-          {/* <IonTabButton tab="notifications" href="/horde/app/notifications">
+          {/* <IonTabButton tab="notifications" href="/Horde/app/notifications">
             <IonIcon icon={notificationsOutline} />
             <IonLabel>Notifications</IonLabel>
           </IonTabButton> */}
 
-          {/* <IonTabButton tab="profile" href="/horde/app/profile">
+          {/* <IonTabButton tab="profile" href="/Horde/app/profile">
             <IonIcon icon={personOutline} />
             <IonLabel>Profile</IonLabel>
           </IonTabButton> */}

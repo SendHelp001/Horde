@@ -103,11 +103,7 @@ const BoardPostsPage: React.FC = () => {
         ) : (
           <IonList>
             {posts.map((post) => (
-              <IonItem
-                key={post.id}
-                routerLink={`/horde/app/post/${post.id}`}
-                detail
-              >
+              <IonItem key={post.id} routerLink={`/Horde/app/post/${post.id}`} detail>
                 <IonLabel>
                   <h2>{post.title}</h2>
                   <p>{new Date(post.created_at).toLocaleString()}</p>

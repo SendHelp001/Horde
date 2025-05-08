@@ -46,7 +46,7 @@ const Signup: React.FC = () => {
 
     if (user) {
       showToast("Sign up successful! Please log in.", "primary");
-      navigation.push("/horde/", "forward", "replace"); // Redirect to login page after signup
+      navigation.push("/Horde/", "forward", "replace"); // Redirect to login page after signup
     }
   };
 
@@ -167,7 +167,7 @@ const Signup: React.FC = () => {
             <IonButton
               fill="clear"
               color="medium"
-              onClick={() => navigation.push("/horde")}
+              onClick={() => navigation.push("/Horde")}
               style={{ "--padding-start": "8px", "--padding-end": "8px", "font-size": "0.9em" }}
             >
               Already have an account?{" "}
