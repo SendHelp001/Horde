@@ -283,95 +283,101 @@ const PostDetail: React.FC = () => {
     }
   };
 
-  const renderReplyItem = (reply: Reply, depth: number = 0) => (
-    <div
-      key={reply.id}
-      style={{
-        marginLeft: `${depth * 16}px`, // Reduced indent
-        paddingLeft: depth > 0 ? "8px" : "0", // Reduced padding
-        marginBottom: "6px", // Reduced margin
-        position: "relative",
-        borderLeft: depth > 0 ? `1px solid #333` : "none", // Vertical line for nesting
-      }}
-    >
-      <IonItem
-        lines="none"
+  const renderReplyItem = (reply: Reply, depth: number = 0) => {
+    const isReplyingToThis = replyingToId === reply.id;
+    return (
+      <div
+        key={reply.id}
         style={{
-          "--inner-padding-end": "8px", // Reduced padding
-          "--inner-padding-start": "8px", // Reduced padding
-          borderRadius: "4px", // Smaller border radius
-          marginBottom: "2px", // Reduced margin
-          backgroundColor: "#181818",
-          color: "#fff",
+          marginLeft: `${depth * 16}px`,
+          paddingLeft: depth > 0 ? "8px" : "0",
+          marginBottom: "6px",
+          position: "relative",
+          borderLeft: depth > 0 ? `1px solid #333` : "none",
         }}
       >
-        <IonAvatar slot="start" style={{ width: "24px", height: "24px", marginRight: "8px" }}>
-          <img
-            src="https://ionicframework.com/docs/img/demos/avatar.svg"
-            alt="Anonymous User"
-            style={{ borderRadius: "50%", backgroundColor: "#333" }}
-          />
-        </IonAvatar>
-        <IonLabel style={{ margin: "0" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "1px", // Reduced margin
-            }}
-          >
-            <h3 style={{ fontSize: "0.8em", fontWeight: "bold", margin: "0", color: "#eee" }}>
-              Anonymous
-            </h3>
-            <p className="reply-metadata" style={{ fontSize: "0.6em", color: "#999", margin: "0" }}>
-              {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
-            </p>
-          </div>
-          <div
-            className="reply-content"
-            style={{ fontSize: "0.75em", lineHeight: "1.3", color: "#ddd" }}
-          >
-            <div style={{ color: "#ddd" }}>
-              <Markdown>{reply.content}</Markdown>
-            </div>
-            {reply.file_url && (
-              <img
-                src={reply.file_url}
-                alt={reply.file_name || "Reply Image"}
-                style={{
-                  maxWidth: "100%",
-                  height: "auto",
-                  marginTop: "4px", // Reduced margin
-                  borderRadius: "4px", // Smaller border radius
-                  cursor: "pointer",
-                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)", // Subtle shadow
-                }}
-                onClick={() => {}}
-              />
-            )}
-          </div>
-        </IonLabel>
-        <IonButton
-          slot="end"
-          size="small"
-          onClick={() => handleReplyClick(reply.id, reply.content)}
+        <IonItem
+          lines="none"
           style={{
-            fontSize: "0.7em",
-            "--padding-start": "6px", // Reduced padding
-            "--padding-end": "6px", // Reduced padding
-            height: "20px", // Smaller button
-            borderRadius: "3px", // Smaller border radius
-            backgroundColor: "var(--ion-color-primary)",
+            "--inner-padding-end": "8px",
+            "--inner-padding-start": "8px",
+            borderRadius: "4px",
+            marginBottom: "2px",
+            backgroundColor: isReplyingToThis ? "#2a2a2a" : "#181818", // Highlight if replying
             color: "#fff",
           }}
         >
-          Reply
-        </IonButton>
-      </IonItem>
-      {reply.replies && reply.replies.map((childReply) => renderReplyItem(childReply, depth + 1))}
-    </div>
-  );
+          <IonAvatar slot="start" style={{ width: "24px", height: "24px", marginRight: "8px" }}>
+            <img
+              src="https://ionicframework.com/docs/img/demos/avatar.svg"
+              alt="Anonymous User"
+              style={{ borderRadius: "50%", backgroundColor: "#333" }}
+            />
+          </IonAvatar>
+          <IonLabel style={{ margin: "0" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "1px",
+              }}
+            >
+              <h3 style={{ fontSize: "0.8em", fontWeight: "bold", margin: "0", color: "#eee" }}>
+                Anonymous
+              </h3>
+              <p
+                className="reply-metadata"
+                style={{ fontSize: "0.6em", color: "#999", margin: "0" }}
+              >
+                {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
+              </p>
+            </div>
+            <div
+              className="reply-content"
+              style={{ fontSize: "0.75em", lineHeight: "1.3", color: "#ddd" }}
+            >
+              <div style={{ color: "#ddd" }}>
+                <Markdown>{reply.content}</Markdown>
+              </div>
+              {reply.file_url && (
+                <img
+                  src={reply.file_url}
+                  alt={reply.file_name || "Reply Image"}
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    marginTop: "4px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+                  }}
+                  onClick={() => {}}
+                />
+              )}
+            </div>
+          </IonLabel>
+          <IonButton
+            slot="end"
+            size="small"
+            onClick={() => handleReplyClick(reply.id, reply.content)}
+            style={{
+              fontSize: "0.7em",
+              "--padding-start": "6px",
+              "--padding-end": "6px",
+              height: "20px",
+              borderRadius: "3px",
+              backgroundColor: "var(--ion-color-primary)",
+              color: "#fff",
+            }}
+          >
+            Reply
+          </IonButton>
+        </IonItem>
+        {reply.replies && reply.replies.map((childReply) => renderReplyItem(childReply, depth + 1))}
+      </div>
+    );
+  };
 
   return (
     <IonPage style={{ backgroundColor: "#000", color: "#fff" }}>
@@ -395,20 +401,18 @@ const PostDetail: React.FC = () => {
         {!loading && postWithReplies && (
           <div
             style={{
-              marginBottom: "12px", // Reduced margin
-              padding: "10px", // Reduced padding
+              marginBottom: "12px",
+              padding: "10px",
               backgroundColor: "#181818",
-              borderRadius: "6px", // Smaller border radius
+              borderRadius: "6px",
             }}
           >
-            <h2
-              style={{ fontSize: "1em", fontWeight: "bold", marginBottom: "4px", color: "#eee" }} // Reduced margin
-            >
+            <h2 style={{ fontSize: "1em", fontWeight: "bold", marginBottom: "4px", color: "#eee" }}>
               {postWithReplies.title}
             </h2>
             <p
               className="post-metadata"
-              style={{ fontSize: "0.7em", color: "#999", marginBottom: "6px" }} // Reduced margin
+              style={{ fontSize: "0.7em", color: "#999", marginBottom: "6px" }}
             >
               Posted{" "}
               {formatDistanceToNow(new Date(postWithReplies.created_at), { addSuffix: true })}
@@ -427,15 +431,14 @@ const PostDetail: React.FC = () => {
                   style={{
                     maxWidth: "100%",
                     height: "auto",
-                    marginTop: "6px", // Reduced margin
-                    borderRadius: "4px", // Smaller border radius
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)", // Subtle shadow
+                    marginTop: "6px",
+                    borderRadius: "4px",
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
                   }}
                 />
               )}
             </div>
-            <div style={{ borderBottom: "1px solid #333", margin: "10px 0" }} />{" "}
-            {/* Reduced margin */}
+            <div style={{ borderBottom: "1px solid #333", margin: "10px 0" }} />
           </div>
         )}
 
@@ -453,20 +456,20 @@ const PostDetail: React.FC = () => {
         {!loading && postWithReplies && (
           <div
             style={{
-              marginTop: "16px", // ReducedpaddingTop: "10px", // Reduced padding
+              marginTop: "16px",
               backgroundColor: "#181818",
-              borderRadius: "6px", // Smaller border radius
-              padding: "10px", // Reduced padding
+              borderRadius: "6px",
+              padding: "10px",
             }}
           >
             {replyingToId && replyingToContent && (
               <div
                 style={{
-                  marginBottom: "8px", // Reduced margin
-                  padding: "8px", // Reduced padding
-                  borderLeft: "2px solid var(--ion-color-primary)", // Thinner border
+                  marginBottom: "8px",
+                  padding: "8px",
+                  borderLeft: "2px solid var(--ion-color-primary)",
                   backgroundColor: "#222",
-                  borderRadius: "3px", // Smaller border radius
+                  borderRadius: "3px",
                   fontSize: "0.7em",
                   color: "#ddd",
                 }}
@@ -481,17 +484,17 @@ const PostDetail: React.FC = () => {
             <IonItem
               lines="none"
               style={{
-                "--inner-padding-end": "8px", // Reduced padding
-                "--inner-padding-start": "8px", // Reduced padding
-                marginBottom: "4px", // Reduced margin
-                borderRadius: "4px", // Smaller border radius
+                "--inner-padding-end": "8px",
+                "--inner-padding-start": "8px",
+                marginBottom: "4px",
+                borderRadius: "4px",
                 backgroundColor: "#222",
                 color: "#fff",
               }}
             >
               <IonLabel
                 position="stacked"
-                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }} // Reduced margin
+                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }}
               >
                 Reply
               </IonLabel>
@@ -501,9 +504,9 @@ const PostDetail: React.FC = () => {
                 autoFocus={replyingToId !== null}
                 style={{
                   fontSize: "0.75em",
-                  borderRadius: "4px", // Smaller border radius
+                  borderRadius: "4px",
                   border: "1px solid #333",
-                  padding: "6px", // Reduced padding
+                  padding: "6px",
                   backgroundColor: "#333",
                   color: "#fff",
                 }}
@@ -512,18 +515,18 @@ const PostDetail: React.FC = () => {
             <IonItem
               lines="none"
               style={{
-                "--inner-padding-end": "8px", // Reduced padding
-                "--inner-padding-start": "8px", // Reduced padding
-                marginTop: "4px", // Reduced margin
-                marginBottom: "8px", // Reduced margin
-                borderRadius: "4px", // Smaller border radius
+                "--inner-padding-end": "8px",
+                "--inner-padding-start": "8px",
+                marginTop: "4px",
+                marginBottom: "8px",
+                borderRadius: "4px",
                 backgroundColor: "#222",
                 color: "#fff",
               }}
             >
               <IonLabel
                 position="stacked"
-                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }} // Reduced margin
+                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }}
               >
                 Attach Image (Optional)
               </IonLabel>
@@ -545,10 +548,10 @@ const PostDetail: React.FC = () => {
               onClick={handleReplySubmit}
               disabled={!newReplyContent.trim() && !replyFile}
               style={{
-                marginTop: "8px", // Reduced margin
+                marginTop: "8px",
                 fontSize: "0.8em",
-                borderRadius: "4px", // Smaller border radius
-                height: "30px", // Smaller button
+                borderRadius: "4px",
+                height: "30px",
                 backgroundColor: "var(--ion-color-primary)",
                 color: "#fff",
               }}
@@ -567,7 +570,7 @@ const PostDetail: React.FC = () => {
                   setReplyFile(null);
                   setReplyFileName(null);
                 }}
-                style={{ fontSize: "0.7em", marginTop: "6px", color: "#999" }} // Reduced margin
+                style={{ fontSize: "0.7em", marginTop: "6px", color: "#999" }}
               >
                 Cancel Reply
               </IonButton>
