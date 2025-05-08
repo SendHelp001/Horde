@@ -42,7 +42,7 @@ interface Guide {
   } | null;
 }
 
-const Home: React.FC = () => {
+const FeedContainer: React.FC = () => {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -143,80 +143,68 @@ const Home: React.FC = () => {
   };
 
   return (
-    <IonPage role="feed">
-      <IonHeader>
-        <IonToolbar>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Feed</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-        </IonToolbar>
-      </IonHeader>
+    <>
+      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+        <IonRefresherContent />
+      </IonRefresher>
 
-      <IonContent fullscreen className="ion-padding">
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
+      {guides.map((guide, index) => (
+        <div key={guide.id} className="feed-item">
+          <FeedCard
+            id={guide.id}
+            title={guide.title}
+            content={guide.content}
+            onClick={handleGuideClick}
+            username="Anonymous"
+            timestamp={formatTimestamp(guide.created_at)}
+            avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg"
+            imageUrl={guide.image_url}
+            imageAlt={guide.image_alt}
+            imageAspectRatio={guide.image_aspect_ratio}
+            board={guide.board || undefined} // ✅ Convert null to undefined for compatibility
+          />
+          {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
+        </div>
+      ))}
 
-        {guides.map((guide, index) => (
-          <div key={guide.id} className="feed-item">
-            <FeedCard
-              id={guide.id}
-              title={guide.title}
-              content={guide.content}
-              onClick={handleGuideClick}
-              username="Anonymous"
-              timestamp={formatTimestamp(guide.created_at)}
-              avatarUrl="https://ionicframework.com/docs/img/demos/avatar.svg"
-              imageUrl={guide.image_url}
-              imageAlt={guide.image_alt}
-              imageAspectRatio={guide.image_aspect_ratio}
-              board={guide.board || undefined} // ✅ Convert null to undefined for compatibility
-            />
-            {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
-          </div>
-        ))}
+      <IonInfiniteScroll
+        threshold="100px"
+        disabled={!hasMore}
+        onIonInfinite={(event) => fetchGuides(false, event)}
+      >
+        <IonInfiniteScrollContent
+          loadingSpinner="bubbles"
+          loadingText="Loading more guides..."
+        ></IonInfiniteScrollContent>
+      </IonInfiniteScroll>
 
-        <IonInfiniteScroll
-          threshold="100px"
-          disabled={!hasMore}
-          onIonInfinite={(event) => fetchGuides(false, event)}
+      {!hasMore && (
+        <div
+          style={{
+            textAlign: "center",
+            color: "#dc3545",
+            borderRadius: "15px",
+            border: "1px solid #dc3545",
+            backgroundColor: "transparent",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            marginBottom: "60px",
+            fontSize: "0.9rem",
+            padding: "6px 10px",
+            alignSelf: "center",
+          }}
         >
-          <IonInfiniteScrollContent
-            loadingSpinner="bubbles"
-            loadingText="Loading more guides..."
-          ></IonInfiniteScrollContent>
-        </IonInfiniteScroll>
+          <span>End of Doom</span>
+          <img src={devil} alt="Logo" style={{ width: "18px", height: "18px" }} />
+        </div>
+      )}
 
-        {!hasMore && (
-          <div
-            style={{
-              textAlign: "center",
-              color: "#dc3545",
-              borderRadius: "15px",
-              border: "1px solid #dc3545",
-              backgroundColor: "transparent",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              marginBottom: "60px",
-              fontSize: "0.9rem",
-              padding: "6px 10px",
-              alignSelf: "center",
-            }}
-          >
-            <span>End of Doom</span>
-            <img src={devil} alt="Logo" style={{ width: "18px", height: "18px" }} />
-          </div>
-        )}
-
-        {/* Padding for the bottom navigation bar */}
-        <div style={{ paddingBottom: "60px" }}></div>
-      </IonContent>
-    </IonPage>
+      {/* Padding for the bottom navigation bar */}
+      <div style={{ paddingBottom: "60px" }}></div>
+    </>
   );
 };
 
-export default Home;
+export default FeedContainer;

@@ -6,7 +6,7 @@ import {
   IonToolbar,
   useIonViewDidEnter,
 } from "@ionic/react";
-import ExploreContainer from "../../components/ExploreContainer";
+
 import { useRef } from "react";
 import { transitionFade } from "../../animations/transition";
 import FeedContainer from "../../components/FeedContainer";
@@ -20,11 +20,20 @@ const Feed: React.FC = () => {
     }
   });
   return (
-    <>
-      <IonContent ref={contentRef} fullscreen>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Feed</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent ref={contentRef}>
         <FeedContainer />
-      </IonContent>{" "}
-    </>
+      </IonContent>
+    </IonPage>
   );
 };
 

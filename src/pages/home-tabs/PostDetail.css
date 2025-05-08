@@ -10,7 +10,7 @@
 .image-modal ion-content {
   --padding-top: 20px; /* Add some top padding to prevent overlap with close button */
   --padding-end: 20px;
-  --padding-bottom: 20px;
+  --padding-bottom: 0px;
   --padding-start: 20px;
 }
 

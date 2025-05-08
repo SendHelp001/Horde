@@ -1,11 +1,4 @@
-.toolbar-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  position: relative;
-  padding: 8px 0;
-}
+
 
 .avatar-button {
   position: absolute;
