@@ -41,7 +41,7 @@ interface PostWithReplies {
   replies: Reply[];
 }
 
-const MAX_FILE_SIZE_MB = 5; // Example: 5MB limit
+const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const PostDetail: React.FC = () => {
@@ -51,7 +51,7 @@ const PostDetail: React.FC = () => {
   const [replyingToContent, setReplyingToContent] = useState<string | null>(null);
   const [newReplyContent, setNewReplyContent] = useState("");
   const [replyFile, setReplyFile] = useState<File | null>(null);
-  const [replyFileName, setReplyFileName] = useState<string | null>(null); // To display selected file name
+  const [replyFileName, setReplyFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [presentToast] = useIonToast();
@@ -81,7 +81,7 @@ const PostDetail: React.FC = () => {
           .from("replies")
           .select("*")
           .eq("guide_id", postId)
-          .order("created_at", { ascending: true }); // Fetch all replies in ascending order
+          .order("created_at", { ascending: true });
 
         if (postError || repliesError) {
           setError("Failed to load post details and replies.");
@@ -102,7 +102,7 @@ const PostDetail: React.FC = () => {
   }, [postId]);
 
   const sanitizeFileName = (name: string) => {
-    return name.replace(/[^a-zA-Z0-9._-]/g, "_"); // Keep alphanumeric, dot, underscore, hyphen
+    return name.replace(/[^a-zA-Z0-9._-]/g, "_");
   };
 
   const buildNestedReplies = (replies: Reply[]): Reply[] => {
@@ -165,8 +165,8 @@ const PostDetail: React.FC = () => {
       const now = new Date();
       const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
       const fileExtension = file.name.substring(file.name.lastIndexOf("."));
-      const newFileName = `${timestamp}${fileExtension}`;
-      const filePath = `replies/${postId}/${newFileName}`; // Corrected path construction
+      const newFileName = `<span class="math-inline">\{timestamp\}</span>{fileExtension}`;
+      const filePath = `replies/<span class="math-inline">\{postId\}/</span>{newFileName}`;
 
       const { data, error: uploadError } = await supabase.storage
         .from("reply-images")
@@ -237,10 +237,9 @@ const PostDetail: React.FC = () => {
         setReplyFile(null);
         setReplyFileName(null);
         if (fileInputRef.current) {
-          fileInputRef.current.value = ""; // Clear the file input
+          fileInputRef.current.value = "";
         }
         presentToast({ message: "Reply posted!", duration: 2000, color: "success" });
-        // Refresh the post and replies
         const fetchPostAndReplies = async () => {
           setLoading(true);
           setError(null);
@@ -256,7 +255,7 @@ const PostDetail: React.FC = () => {
               .from("replies")
               .select("*")
               .eq("guide_id", postId)
-              .order("created_at", { ascending: true }); // Fetch all replies in ascending order
+              .order("created_at", { ascending: true });
 
             if (postError || repliesError) {
               setError("Failed to load post details and replies.");
@@ -288,37 +287,25 @@ const PostDetail: React.FC = () => {
     <div
       key={reply.id}
       style={{
-        marginLeft: `${depth * 24}px`, // Increased indent for more visual separation
-        paddingLeft: depth > 0 ? "12px" : "0",
-        marginBottom: "10px",
-        position: "relative", // For positioning pseudo-elements
+        marginLeft: `${depth * 16}px`, // Reduced indent
+        paddingLeft: depth > 0 ? "8px" : "0", // Reduced padding
+        marginBottom: "6px", // Reduced margin
+        position: "relative",
+        borderLeft: depth > 0 ? `1px solid #333` : "none", // Vertical line for nesting
       }}
     >
-      {depth > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: "8px", // Adjust based on avatar/content alignment
-            left: `${depth * 24 - 12}px`, // Adjust for indent and line position
-            width: "1px",
-            height: "calc(100% - 16px)", // Adjust top/bottom spacing
-            backgroundColor: "#fff",
-          }}
-        />
-      )}
       <IonItem
         lines="none"
         style={{
-          "--inner-padding-end": "12px",
-          "--inner-padding-start": "12px",
-          borderRadius: "8px",
-          marginBottom: "4px",
-          backgroundColor: "#181818", // Black background for reply items
-          color: "#fff", // White text for reply items
-          marginLeft: depth > 0 ? "12px" : "0", // Offset the item content
+          "--inner-padding-end": "8px", // Reduced padding
+          "--inner-padding-start": "8px", // Reduced padding
+          borderRadius: "4px", // Smaller border radius
+          marginBottom: "2px", // Reduced margin
+          backgroundColor: "#181818",
+          color: "#fff",
         }}
       >
-        <IonAvatar slot="start" style={{ width: "36px", height: "36px", marginRight: "10px" }}>
+        <IonAvatar slot="start" style={{ width: "24px", height: "24px", marginRight: "8px" }}>
           <img
             src="https://ionicframework.com/docs/img/demos/avatar.svg"
             alt="Anonymous User"
@@ -331,19 +318,19 @@ const PostDetail: React.FC = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "2px",
+              marginBottom: "1px", // Reduced margin
             }}
           >
-            <h3 style={{ fontSize: "0.9em", fontWeight: "bold", margin: "0", color: "#eee" }}>
+            <h3 style={{ fontSize: "0.8em", fontWeight: "bold", margin: "0", color: "#eee" }}>
               Anonymous
             </h3>
-            <p className="reply-metadata" style={{ fontSize: "0.7em", color: "#999", margin: "0" }}>
+            <p className="reply-metadata" style={{ fontSize: "0.6em", color: "#999", margin: "0" }}>
               {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
             </p>
           </div>
           <div
             className="reply-content"
-            style={{ fontSize: "0.85em", lineHeight: "1.4", color: "#ddd" }}
+            style={{ fontSize: "0.75em", lineHeight: "1.3", color: "#ddd" }}
           >
             <div style={{ color: "#ddd" }}>
               <Markdown>{reply.content}</Markdown>
@@ -355,10 +342,10 @@ const PostDetail: React.FC = () => {
                 style={{
                   maxWidth: "100%",
                   height: "auto",
-                  marginTop: "6px",
-                  borderRadius: "6px",
+                  marginTop: "4px", // Reduced margin
+                  borderRadius: "4px", // Smaller border radius
                   cursor: "pointer",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)", // Subtle shadow
                 }}
                 onClick={() => {}}
               />
@@ -370,11 +357,11 @@ const PostDetail: React.FC = () => {
           size="small"
           onClick={() => handleReplyClick(reply.id, reply.content)}
           style={{
-            fontSize: "0.8em",
-            "--padding-start": "8px",
-            "--padding-end": "8px",
-            height: "26px",
-            borderRadius: "4px",
+            fontSize: "0.7em",
+            "--padding-start": "6px", // Reduced padding
+            "--padding-end": "6px", // Reduced padding
+            height: "20px", // Smaller button
+            borderRadius: "3px", // Smaller border radius
             backgroundColor: "var(--ion-color-primary)",
             color: "#fff",
           }}
@@ -401,34 +388,34 @@ const PostDetail: React.FC = () => {
 
       <IonContent
         className="ion-padding"
-        style={{ "--padding-bottom": "120px", backgroundColor: "#000", color: "#fff" }}
+        style={{ "--padding-bottom": "100px", backgroundColor: "#000", color: "#fff" }} // Reduced bottom padding
       >
-        {loading && <p style={{ fontSize: "0.9em", color: "#999" }}>Loading post...</p>}
+        {loading && <p style={{ fontSize: "0.8em", color: "#999" }}>Loading post...</p>}
 
         {!loading && postWithReplies && (
           <div
             style={{
-              marginBottom: "16px",
-              padding: "12px",
+              marginBottom: "12px", // Reduced margin
+              padding: "10px", // Reduced padding
               backgroundColor: "#181818",
-              borderRadius: "8px",
+              borderRadius: "6px", // Smaller border radius
             }}
           >
             <h2
-              style={{ fontSize: "1.1em", fontWeight: "bold", marginBottom: "6px", color: "#eee" }}
+              style={{ fontSize: "1em", fontWeight: "bold", marginBottom: "4px", color: "#eee" }} // Reduced margin
             >
               {postWithReplies.title}
             </h2>
             <p
               className="post-metadata"
-              style={{ fontSize: "0.8em", color: "#999", marginBottom: "10px" }}
+              style={{ fontSize: "0.7em", color: "#999", marginBottom: "6px" }} // Reduced margin
             >
               Posted{" "}
               {formatDistanceToNow(new Date(postWithReplies.created_at), { addSuffix: true })}
             </p>
             <div
               className="post-content"
-              style={{ fontSize: "0.9em", lineHeight: "1.5", color: "#ddd" }}
+              style={{ fontSize: "0.8em", lineHeight: "1.4", color: "#ddd" }}
             >
               <div style={{ color: "#ddd" }}>
                 <Markdown>{postWithReplies.content}</Markdown>
@@ -440,25 +427,24 @@ const PostDetail: React.FC = () => {
                   style={{
                     maxWidth: "100%",
                     height: "auto",
-                    marginTop: "10px",
-                    borderRadius: "6px",
-                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                    marginTop: "6px", // Reduced margin
+                    borderRadius: "4px", // Smaller border radius
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)", // Subtle shadow
                   }}
                 />
               )}
             </div>
-            <div style={{ borderBottom: "1px solid #333", margin: "14px 0" }} />
+            <div style={{ borderBottom: "1px solid #333", margin: "10px 0" }} />{" "}
+            {/* Reduced margin */}
           </div>
         )}
 
         {!loading && postWithReplies && postWithReplies.replies.length > 0 && (
-          <h3 style={{ fontSize: "1em", fontWeight: "bold", marginBottom: "10px", color: "#eee" }}>
+          <h3 style={{ fontSize: "0.9em", fontWeight: "bold", marginBottom: "8px", color: "#eee" }}>
             Replies
           </h3>
         )}
         <IonList lines="none" style={{ backgroundColor: "transparent" }}>
-          {" "}
-          {/* Make the IonList background transparent */}
           {!loading &&
             postWithReplies &&
             postWithReplies.replies.map((reply: Reply) => renderReplyItem(reply))}
@@ -467,28 +453,27 @@ const PostDetail: React.FC = () => {
         {!loading && postWithReplies && (
           <div
             style={{
-              marginTop: "20px",
-              paddingTop: "12px",
+              marginTop: "16px", // ReducedpaddingTop: "10px", // Reduced padding
               backgroundColor: "#181818",
-              borderRadius: "8px",
-              padding: "12px",
+              borderRadius: "6px", // Smaller border radius
+              padding: "10px", // Reduced padding
             }}
           >
             {replyingToId && replyingToContent && (
               <div
                 style={{
-                  marginBottom: "10px",
-                  padding: "10px",
-                  borderLeft: "3px solid var(--ion-color-primary)",
+                  marginBottom: "8px", // Reduced margin
+                  padding: "8px", // Reduced padding
+                  borderLeft: "2px solid var(--ion-color-primary)", // Thinner border
                   backgroundColor: "#222",
-                  borderRadius: "4px",
-                  fontSize: "0.8em",
+                  borderRadius: "3px", // Smaller border radius
+                  fontSize: "0.7em",
                   color: "#ddd",
                 }}
               >
                 Replying to: "
-                {replyingToContent.length > 50
-                  ? replyingToContent.substring(0, 50) + "..."
+                {replyingToContent.length > 40
+                  ? replyingToContent.substring(0, 40) + "..."
                   : replyingToContent}
                 "
               </div>
@@ -496,17 +481,17 @@ const PostDetail: React.FC = () => {
             <IonItem
               lines="none"
               style={{
-                "--inner-padding-end": "12px",
-                "--inner-padding-start": "12px",
-                marginBottom: "6px",
-                borderRadius: "6px",
+                "--inner-padding-end": "8px", // Reduced padding
+                "--inner-padding-start": "8px", // Reduced padding
+                marginBottom: "4px", // Reduced margin
+                borderRadius: "4px", // Smaller border radius
                 backgroundColor: "#222",
                 color: "#fff",
               }}
             >
               <IonLabel
                 position="stacked"
-                style={{ fontSize: "0.9em", color: "#eee", marginBottom: "4px" }}
+                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }} // Reduced margin
               >
                 Reply
               </IonLabel>
@@ -515,10 +500,10 @@ const PostDetail: React.FC = () => {
                 onIonChange={(e) => setNewReplyContent(e.detail!.value!)}
                 autoFocus={replyingToId !== null}
                 style={{
-                  fontSize: "0.85em",
-                  borderRadius: "6px",
+                  fontSize: "0.75em",
+                  borderRadius: "4px", // Smaller border radius
                   border: "1px solid #333",
-                  padding: "8px",
+                  padding: "6px", // Reduced padding
                   backgroundColor: "#333",
                   color: "#fff",
                 }}
@@ -527,18 +512,18 @@ const PostDetail: React.FC = () => {
             <IonItem
               lines="none"
               style={{
-                "--inner-padding-end": "12px",
-                "--inner-padding-start": "12px",
-                marginTop: "6px",
-                marginBottom: "10px",
-                borderRadius: "6px",
+                "--inner-padding-end": "8px", // Reduced padding
+                "--inner-padding-start": "8px", // Reduced padding
+                marginTop: "4px", // Reduced margin
+                marginBottom: "8px", // Reduced margin
+                borderRadius: "4px", // Smaller border radius
                 backgroundColor: "#222",
                 color: "#fff",
               }}
             >
               <IonLabel
                 position="stacked"
-                style={{ fontSize: "0.9em", color: "#eee", marginBottom: "4px" }}
+                style={{ fontSize: "0.8em", color: "#eee", marginBottom: "2px" }} // Reduced margin
               >
                 Attach Image (Optional)
               </IonLabel>
@@ -547,10 +532,10 @@ const PostDetail: React.FC = () => {
                 accept="image/*"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                style={{ fontSize: "0.85em", color: "#fff" }}
+                style={{ fontSize: "0.75em", color: "#fff" }}
               />
               {replyFile && (
-                <IonLabel style={{ fontSize: "0.8em", marginTop: "4px", color: "#999" }}>
+                <IonLabel style={{ fontSize: "0.7em", marginTop: "2px", color: "#999" }}>
                   Selected: {replyFile.name}
                 </IonLabel>
               )}
@@ -560,10 +545,10 @@ const PostDetail: React.FC = () => {
               onClick={handleReplySubmit}
               disabled={!newReplyContent.trim() && !replyFile}
               style={{
-                marginTop: "12px",
-                fontSize: "0.9em",
-                borderRadius: "6px",
-                height: "36px",
+                marginTop: "8px", // Reduced margin
+                fontSize: "0.8em",
+                borderRadius: "4px", // Smaller border radius
+                height: "30px", // Smaller button
                 backgroundColor: "var(--ion-color-primary)",
                 color: "#fff",
               }}
@@ -577,12 +562,12 @@ const PostDetail: React.FC = () => {
                   setReplyingToId(null);
                   setReplyingToContent(null);
                   if (fileInputRef.current) {
-                    fileInputRef.current.value = ""; // Clear the file input
+                    fileInputRef.current.value = "";
                   }
                   setReplyFile(null);
                   setReplyFileName(null);
                 }}
-                style={{ fontSize: "0.8em", marginTop: "10px", color: "#999" }}
+                style={{ fontSize: "0.7em", marginTop: "6px", color: "#999" }} // Reduced margin
               >
                 Cancel Reply
               </IonButton>
@@ -593,14 +578,14 @@ const PostDetail: React.FC = () => {
         {error && !loading && (
           <p
             className="error-message"
-            style={{ fontSize: "0.9em", color: "var(--ion-color-danger)" }}
+            style={{ fontSize: "0.8em", color: "var(--ion-color-danger)" }}
           >
             {error}
           </p>
         )}
 
         {!postWithReplies && !loading && !error && (
-          <p style={{ fontSize: "0.9em", color: "#999" }}>Post not found.</p>
+          <p style={{ fontSize: "0.8em", color: "#999" }}>Post not found.</p>
         )}
       </IonContent>
     </IonPage>
