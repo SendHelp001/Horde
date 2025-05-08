@@ -146,7 +146,7 @@ const Home: React.FC = () => {
               imageAlt={guide.image_alt} // Pass the image alt text
               imageAspectRatio={guide.image_aspect_ratio}
             />
-            {index < guides.length - 1 && <IonItemDivider className="feed-divider" />}
+            {/* {index < guides.length - 1 && <IonItemDivider className="feed-divider" />} */}
           </div>
         ))}
 

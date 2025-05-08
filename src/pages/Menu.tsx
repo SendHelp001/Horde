@@ -33,7 +33,7 @@ const Menu: React.FC = () => {
             <Route exact path="/horde/app/Feed" component={Feed} />
             <Route exact path="/horde/app/explore" component={Explore} />
             <Route exact path="/horde/app/create" component={Create} />
-            <Route exact path="/horde/app/notifications" component={Notifications} />
+            {/* <Route exact path="/horde/app/notifications" component={Notifications} /> */}
             <Route path="/horde/app/post/:postId" component={PostDetail} />
             <Route exact path="/horde/app">
               <Redirect to="/horde/app/Feed" />
@@ -57,15 +57,15 @@ const Menu: React.FC = () => {
             <IonLabel>Create</IonLabel>
           </IonTabButton>
 
-          <IonTabButton tab="notifications" href="/horde/app/notifications">
+          {/* <IonTabButton tab="notifications" href="/horde/app/notifications">
             <IonIcon icon={notificationsOutline} />
             <IonLabel>Notifications</IonLabel>
-          </IonTabButton>
+          </IonTabButton> */}
 
-          <IonTabButton tab="profile" href="/horde/app/profile">
+          {/* <IonTabButton tab="profile" href="/horde/app/profile">
             <IonIcon icon={personOutline} />
             <IonLabel>Profile</IonLabel>
-          </IonTabButton>
+          </IonTabButton> */}
         </IonTabBar>
       </IonTabs>
     </IonPage>

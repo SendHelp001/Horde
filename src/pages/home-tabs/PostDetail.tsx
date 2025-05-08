@@ -41,6 +41,9 @@ interface PostWithReplies {
   replies: Reply[];
 }
 
+const MAX_FILE_SIZE_MB = 5; // Example: 5MB limit
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const [postWithReplies, setPostWithReplies] = useState<PostWithReplies | null>(null);
@@ -48,6 +51,7 @@ const PostDetail: React.FC = () => {
   const [replyingToContent, setReplyingToContent] = useState<string | null>(null);
   const [newReplyContent, setNewReplyContent] = useState("");
   const [replyFile, setReplyFile] = useState<File | null>(null);
+  const [replyFileName, setReplyFileName] = useState<string | null>(null); // To display selected file name
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [presentToast] = useIonToast();
@@ -127,18 +131,68 @@ const PostDetail: React.FC = () => {
 
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setReplyFile(file);
-    } else if (file) {
-      presentToast({ message: "Invalid image format.", duration: 2000, color: "warning" });
-      event.target.value = "";
+    if (file) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        presentToast({
+          message: `Image size exceeds the limit of ${MAX_FILE_SIZE_MB}MB.`,
+          duration: 2000,
+          color: "warning",
+        });
+        event.target.value = "";
+        setReplyFile(null);
+        setReplyFileName(null);
+        return;
+      }
+      if (file.type.startsWith("image/")) {
+        setReplyFile(file);
+        setReplyFileName(file.name);
+      } else {
+        presentToast({ message: "Please select an image file.", duration: 2000, color: "warning" });
+        event.target.value = "";
+        setReplyFile(null);
+        setReplyFileName(null);
+      }
+    } else {
       setReplyFile(null);
+      setReplyFileName(null);
+    }
+  };
+
+  const uploadFileToReplyImages = async (file: File | null) => {
+    if (!file) return { data: null, error: null };
+
+    try {
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
+      const fileExtension = file.name.substring(file.name.lastIndexOf("."));
+      const newFileName = `${timestamp}${fileExtension}`;
+      const filePath = `replies/${postId}/${newFileName}`; // Corrected path construction
+
+      const { data, error: uploadError } = await supabase.storage
+        .from("reply-images")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Error uploading image:", uploadError);
+        return { error: uploadError };
+      }
+
+      const publicUrl =
+        supabase.storage.from("reply-images").getPublicUrl(filePath).data?.publicUrl || null;
+      return { data: { path: filePath, publicUrl, name: file.name, type: file.type } };
+    } catch (error: any) {
+      console.error("Error during image upload:", error);
+      return { error: { message: error.message } };
     }
   };
 
   const handleReplySubmit = async () => {
     if (!newReplyContent.trim() && !replyFile) {
-      presentToast({ message: "Reply cannot be empty.", duration: 2000, color: "warning" });
+      presentToast({
+        message: "Please enter a reply or attach an image.",
+        duration: 2000,
+        color: "warning",
+      });
       return;
     }
 
@@ -147,106 +201,86 @@ const PostDetail: React.FC = () => {
     let fileType: string | null = null;
 
     if (replyFile) {
-      try {
-        const timestamp = new Date().getTime();
-        const sanitizedBaseName = sanitizeFileName(
-          replyFile.name.substring(0, replyFile.name.lastIndexOf("."))
-        ); // Sanitize name without extension
-        const fileExtension = replyFile.name.substring(replyFile.name.lastIndexOf("."));
-        const fileNameUpload = `${anonymousId}-${sanitizedBaseName}-${timestamp}${fileExtension}`;
-        const { data, error: storageError } = await supabase.storage
-          .from("reply-images")
-          .upload(fileNameUpload, replyFile);
+      const uploadResult = await uploadFileToReplyImages(replyFile);
 
-        if (storageError) {
-          presentToast({ message: "Failed to upload image.", duration: 2000, color: "danger" });
-          return;
-        } else {
-          fileUrl = supabase.storage.from("reply-images").getPublicUrl(data!.path).data.publicUrl;
-          fileName = replyFile.name;
-          fileType = replyFile.type;
-        }
-      } catch (uploadError: any) {
+      if (uploadResult.error) {
+        console.error("Error uploading image:", uploadResult.error);
         presentToast({ message: "Failed to upload image.", duration: 2000, color: "danger" });
         return;
       }
+
+      fileUrl = uploadResult.data?.publicUrl || null;
+      fileName = uploadResult.data?.name || null;
+      fileType = uploadResult.data?.type || null;
     }
 
     try {
-      const { data: newReply, error } = await supabase
-        .from("replies")
-        .insert([
-          {
-            content: newReplyContent,
-            parent_id: replyingToId,
-            guide_id: parseInt(postId, 10),
-            anonymous_id: anonymousId,
-            file_url: fileUrl,
-            file_name: fileName,
-            file_type: fileType,
-          },
-        ])
-        .select(
-          `
-          id,
-          content,
-          created_at,
-          parent_id,
-          anonymous_id,
-          file_url,
-          file_name,
-          file_type
-        `
-        )
-        .single();
+      const { error: insertError } = await supabase.from("replies").insert([
+        {
+          content: newReplyContent.trim(),
+          parent_id: replyingToId,
+          guide_id: parseInt(postId, 10),
+          anonymous_id: anonymousId,
+          file_url: fileUrl,
+          file_name: fileName,
+          file_type: fileType,
+        },
+      ]);
 
-      if (error) {
-        presentToast({ message: "Failed to submit reply.", duration: 2000, color: "danger" });
+      if (insertError) {
+        console.error("Error creating reply:", insertError);
+        presentToast({ message: "Failed to post reply.", duration: 2000, color: "danger" });
       } else {
         setNewReplyContent("");
-        setReplyFile(null);
         setReplyingToId(null);
         setReplyingToContent(null);
+        setReplyFile(null);
+        setReplyFileName(null);
         if (fileInputRef.current) {
-          fileInputRef.current.value = "";
+          fileInputRef.current.value = ""; // Clear the file input
         }
-        // Optimistically update the UI with the new reply
-        setPostWithReplies((prevPost) => {
-          if (!prevPost) return null;
-          const newReplyWithEmptyReplies: Reply = { ...newReply, replies: [] };
+        presentToast({ message: "Reply posted!", duration: 2000, color: "success" });
+        // Refresh the post and replies
+        const fetchPostAndReplies = async () => {
+          setLoading(true);
+          setError(null);
 
-          const updateNestedReplies = (replies: Reply[], newReply: Reply): Reply[] => {
-            return replies.map((reply) => {
-              if (reply.id === replyingToId) {
-                return { ...reply, replies: [...(reply.replies || []), newReply] };
-              }
-              if (reply.replies) {
-                return { ...reply, replies: updateNestedReplies(reply.replies, newReply) };
-              }
-              return reply;
-            });
-          };
+          try {
+            const { data: postData, error: postError } = await supabase
+              .from("guides")
+              .select("*")
+              .eq("id", postId)
+              .single();
 
-          if (replyingToId === null || replyingToId === prevPost.id) {
-            return {
-              ...prevPost,
-              replies: [...(prevPost.replies || []), newReplyWithEmptyReplies],
-            };
-          } else {
-            return {
-              ...prevPost,
-              replies: updateNestedReplies(prevPost.replies, newReplyWithEmptyReplies),
-            };
+            const { data: repliesData, error: repliesError } = await supabase
+              .from("replies")
+              .select("*")
+              .eq("guide_id", postId)
+              .order("created_at", { ascending: true }); // Fetch all replies in ascending order
+
+            if (postError || repliesError) {
+              setError("Failed to load post details and replies.");
+            } else if (postData) {
+              setPostWithReplies({
+                ...postData,
+                replies: buildNestedReplies((repliesData as Reply[]) || []),
+              });
+            }
+          } catch (err: any) {
+            setError("An unexpected error occurred.");
+          } finally {
+            setLoading(false);
           }
-        });
-        presentToast({
-          message: "Reply submitted successfully!",
-          duration: 2000,
-          color: "success",
-        });
+        };
+        fetchPostAndReplies();
       }
-    } catch (error: any) {
-      presentToast({ message: "Failed to submit reply.", duration: 2000, color: "danger" });
+    } catch (err: any) {
+      console.error("An unexpected error occurred while posting reply:", err);
+      presentToast({
+        message: "An unexpected error occurred while posting reply.",
+        duration: 2000,
+        color: "danger",
+      });
     }
   };
 
@@ -301,7 +335,7 @@ const PostDetail: React.FC = () => {
             }}
           >
             <h3 style={{ fontSize: "0.9em", fontWeight: "bold", margin: "0", color: "#eee" }}>
-              Anonymous User
+              Anonymous
             </h3>
             <p className="reply-metadata" style={{ fontSize: "0.7em", color: "#999", margin: "0" }}>
               {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
@@ -399,20 +433,20 @@ const PostDetail: React.FC = () => {
               <div style={{ color: "#ddd" }}>
                 <Markdown>{postWithReplies.content}</Markdown>
               </div>
+              {postWithReplies.image_url && (
+                <img
+                  src={postWithReplies.image_url}
+                  alt="Post Image"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    marginTop: "10px",
+                    borderRadius: "6px",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                  }}
+                />
+              )}
             </div>
-            {postWithReplies.image_url && (
-              <img
-                src={postWithReplies.image_url}
-                alt="Post Image"
-                style={{
-                  maxWidth: "100%",
-                  height: "auto",
-                  marginTop: "10px",
-                  borderRadius: "6px",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
-                }}
-              />
-            )}
             <div style={{ borderBottom: "1px solid #333", margin: "14px 0" }} />
           </div>
         )}
@@ -427,7 +461,7 @@ const PostDetail: React.FC = () => {
           {/* Make the IonList background transparent */}
           {!loading &&
             postWithReplies &&
-            postWithReplies.replies.map((reply) => renderReplyItem(reply))}
+            postWithReplies.replies.map((reply: Reply) => renderReplyItem(reply))}
         </IonList>
 
         {!loading && postWithReplies && (
@@ -542,6 +576,11 @@ const PostDetail: React.FC = () => {
                 onClick={() => {
                   setReplyingToId(null);
                   setReplyingToContent(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = ""; // Clear the file input
+                  }
+                  setReplyFile(null);
+                  setReplyFileName(null);
                 }}
                 style={{ fontSize: "0.8em", marginTop: "10px", color: "#999" }}
               >
