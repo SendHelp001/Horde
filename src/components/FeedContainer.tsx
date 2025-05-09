@@ -202,7 +202,7 @@ const FeedContainer: React.FC = () => {
       )}
 
       {/* Padding for the bottom navigation bar */}
-      <div style={{ paddingBottom: "60px" }}></div>
+      <div style={{ paddingBottom: "120px" }}></div>
     </>
   );
 };

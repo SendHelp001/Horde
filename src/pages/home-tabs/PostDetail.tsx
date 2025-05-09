@@ -412,7 +412,7 @@ const PostDetail: React.FC = () => {
       </IonHeader>
       <IonContent
         className="ion-padding"
-        style={{ "--padding-bottom": "140px", backgroundColor: "#121212", color: "#f0f0f0" }}
+        style={{ "--padding-bottom": "200px", backgroundColor: "#121212", color: "#f0f0f0" }}
       >
         {loading && <p style={{ fontSize: "0.9em", color: "#777" }}>Loading post...</p>} {}
         {!loading && postWithReplies && (
@@ -431,14 +431,14 @@ const PostDetail: React.FC = () => {
                   fontWeight: "bold",
                   margin: "0",
                   color: "#eee",
-                  marginRight: "10px",
+                  marginRight: "50px",
                 }}
               >
                 {postWithReplies.title}
               </h2>
               {!loading && postWithReplies && postWithReplies.board_slug && (
-                <IonChip color="primary" outline style={{ marginLeft: "8px", fontSize: "0.8em" }}>
-                  /{postWithReplies.board_slug}/
+                <IonChip color="primary" outline style={{ marginLeft: "0px", fontSize: "0.8em" }}>
+                  /{postWithReplies.board_slug}
                 </IonChip>
               )}
               <span style={{ fontSize: "0.8em", color: "#777", marginLeft: "10px" }}>
