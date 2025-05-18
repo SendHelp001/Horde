@@ -92,13 +92,16 @@ const FeedContainer: React.FC = () => {
           board: guide.board_data,
         }));
 
+        const filteredGuides = mappedGuides.filter((guide) => guide.board?.slug !== "bbb");
+
         setGuides((prevGuides) => {
-          const newGuides = mappedGuides.filter(
+          const newGuides = filteredGuides.filter(
             (newGuide) => !prevGuides.some((g) => g.id === newGuide.id)
           );
           return reload ? newGuides : [...prevGuides, ...newGuides];
         });
 
+        // We still check the length of the original data for hasMore
         if (data.length < guidesPerPage) {
           setHasMore(false);
         } else {
